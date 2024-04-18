@@ -4,5 +4,5 @@ from datetime import datetime
 
 class Sampler:
     @abstractmethod
-    def sample(self, date: datetime.date) -> datetime.date:
+    def sample(self, date: int) -> int:
         pass
