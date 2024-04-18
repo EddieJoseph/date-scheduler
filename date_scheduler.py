@@ -91,7 +91,7 @@ class DateScheduler:
                 self.max_p = initial_p
                 self.max_dates = self.dates.copy(True)
 
-            if min(1, new_p / initial_p) > np.random.rand() ** 0.01:
+            if min(1, new_p / initial_p) > np.random.rand() ** 0.03:
                 self.dates = cand
                 initial_p = new_p
                 accept += 1
