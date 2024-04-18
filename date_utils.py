@@ -20,3 +20,17 @@ def convert_to_date(day_of_year, year):
 def convert_to_datetime(day_of_year, year):
     # Convert day of year to datetime
     return datetime.strptime(str(year) +"-"+ str(day_of_year+1), '%Y-%j')
+
+def get_week_days_of_year(year):
+    # Get working days of year
+    return np.array([i for i in range(365) if convert_to_datetime(i, year).weekday() < 5])
+
+def get_saturdays_of_year(year):
+    # Get saturdays of year
+    return np.array([i for i in range(365) if convert_to_datetime(i, year).weekday() == 5])
+
+def get_sundays_of_year(year):
+    # Get sundays of year
+    return np.array([i for i in range(365) if convert_to_datetime(i, year).weekday() == 6])
+
+
