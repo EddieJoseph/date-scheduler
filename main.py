@@ -13,6 +13,7 @@ from group_utils import get_company
 from holiday_evaluator import HolidayEvaluator
 from no_change_date_sampler import NoChangeDateSampler
 from normal_date_sampler import NormalDateSampler
+from same_day_evaluator import SameDayEvaluator
 from type_spread_evaluator import TypeSpreadEvaluator
 from uniform_sampler import UniformSampler
 from week_clumping_evaluator import WeekClumpingEvaluator
@@ -32,7 +33,8 @@ if __name__ == '__main__':
     large_sampler = NormalDateSampler(variance=150)
 
     # sampler = CombinedSampler([no_change_sampler,small_sampler,medium_sampler,large_sampler],[0.9,0.2,0.07,0.03])
-    sampler = FilteredCombinedSampler([no_change_sampler, small_sampler, medium_sampler, large_sampler], [0.9, 0.2, 0.07, 0.03],2025, 'input/holidays.xlsx')
+    sampler = FilteredCombinedSampler([small_sampler, medium_sampler, large_sampler],
+                                      [ 0.6, 0.35, 0.05], 2025, 'input/holidays.xlsx')
     initialization_sampler = UniformSampler()
 
     evaluator = TypeSpreadEvaluator()
@@ -40,12 +42,11 @@ if __name__ == '__main__':
     as_evaluator = AsCleanEvaluator(year)
     weekend_evaluator = WeekendEvaluator(year)
     week_clumping_evaluator = WeekClumpingEvaluator(year)
-
+    same_day_evaluator = SameDayEvaluator()
 
     scheduler = DateScheduler(year)
-    scheduler.load_dates('input/dates_imp.xlsx')
+    scheduler.load_dates('input/dates_imp3.xlsx')
     scheduler.load_people('input/people.xlsx')
-
 
     scheduler.set_sampler(sampler)
     scheduler.add_evaluator(evaluator)
@@ -53,6 +54,7 @@ if __name__ == '__main__':
     scheduler.add_evaluator(as_evaluator)
     scheduler.add_evaluator(weekend_evaluator)
     scheduler.add_evaluator(week_clumping_evaluator)
+    scheduler.add_evaluator(same_day_evaluator)
     for m in range(200):
         # res = scheduler.generate_candidate()
         # print(scheduler.evaluate_candidate(res))
@@ -71,6 +73,4 @@ if __name__ == '__main__':
         # scheduler.iterate_until(100,0.02)
         print("max found: ", scheduler.get_max())
         # scheduler.save_dates('output/dates.xlsx')
-        scheduler.save_max('output/dates_max'+str(m)+'.xlsx')
-
-
+        scheduler.save_max('output/dates_max' + str(m) + '.xlsx')

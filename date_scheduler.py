@@ -54,13 +54,24 @@ class DateScheduler:
     #         self.dates.loc[index, 'date'] = sampler.sample(row['date'])
     #     self.dates.sort_values(by='date', inplace=True)
 
-    def generate_candidate(self):
+    def generate_candidate2(self):
         candidate = self.dates.copy()
         for index, row in candidate.iterrows():
             candidate.loc[index, 'date'] = self.sampler.sample(row['date'])
         # sort candidate by date ascending
         return candidate.sort_values(by='date', inplace=False)
         # return candidate
+    def generate_candidate(self):
+
+        rows_to_change = np.random.randint(0, len(self.dates), np.random.randint(1, 4))
+        candidate = self.dates.copy()
+        if len(rows_to_change)==2 and np.random.randint(10) < 1:
+            candidate.loc[rows_to_change[0], 'date'] = self.dates.loc[rows_to_change[1], 'date']
+            candidate.loc[rows_to_change[1], 'date'] = self.dates.loc[rows_to_change[0], 'date']
+        else:
+            for index in rows_to_change:
+                self.dates.loc[index, 'date'] = self.sampler.sample(self.dates.loc[index, 'date'])
+        return candidate.sort_values(by='date', inplace=False)
 
     def evaluate_candidate(self, candidate):
         total = 1
@@ -80,7 +91,7 @@ class DateScheduler:
                 self.max_p = initial_p
                 self.max_dates = self.dates.copy(True)
 
-            if min(1, new_p / initial_p) > np.random.rand() ** 0.008:
+            if min(1, new_p / initial_p) > np.random.rand() ** 0.01:
                 self.dates = cand
                 initial_p = new_p
                 accept += 1
