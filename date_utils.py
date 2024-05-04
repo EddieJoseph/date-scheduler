@@ -33,4 +33,31 @@ def get_sundays_of_year(year):
     # Get sundays of year
     return np.array([i for i in range(365) if convert_to_datetime(i, year).weekday() == 6])
 
-
+# This method will not work for leap years!
+# however this should not be an issue because the goal is only to generate good suggestions
+def get_month_from_day_of_year(day_of_year):
+    # Get month from day of year
+    if day_of_year < 31:
+        return 1
+    elif day_of_year < 59:
+        return 2
+    elif day_of_year < 90:
+        return 3
+    elif day_of_year < 120:
+        return 4
+    elif day_of_year < 151:
+        return 5
+    elif day_of_year < 181:
+        return 6
+    elif day_of_year < 212:
+        return 7
+    elif day_of_year < 243:
+        return 8
+    elif day_of_year < 273:
+        return 9
+    elif day_of_year < 304:
+        return 10
+    elif day_of_year < 334:
+        return 11
+    else:
+        return 12

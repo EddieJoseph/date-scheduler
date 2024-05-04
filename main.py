@@ -11,6 +11,7 @@ from date_utils import convert_to_day_of_year, get_week_days_of_year
 from filtered_combined_sampler import FilteredCombinedSampler
 from group_utils import get_company
 from holiday_evaluator import HolidayEvaluator
+from month_evaluator import MonthEvaluator
 from no_change_date_sampler import NoChangeDateSampler
 from normal_date_sampler import NormalDateSampler
 from same_day_evaluator import SameDayEvaluator
@@ -43,9 +44,11 @@ if __name__ == '__main__':
     weekend_evaluator = WeekendEvaluator(year)
     week_clumping_evaluator = WeekClumpingEvaluator(year)
     same_day_evaluator = SameDayEvaluator()
+    month_evaluator = MonthEvaluator()
 
     scheduler = DateScheduler(year)
-    scheduler.load_dates('input/dates_imp3.xlsx')
+    # scheduler.load_dates('input/dates_imp3.xlsx')
+    scheduler.load_dates('input/ex_init.xlsx')
     scheduler.load_people('input/people.xlsx')
 
     scheduler.set_sampler(sampler)
@@ -55,6 +58,7 @@ if __name__ == '__main__':
     scheduler.add_evaluator(weekend_evaluator)
     scheduler.add_evaluator(week_clumping_evaluator)
     scheduler.add_evaluator(same_day_evaluator)
+    scheduler.add_evaluator(month_evaluator)
     for m in range(200):
         # res = scheduler.generate_candidate()
         # print(scheduler.evaluate_candidate(res))
