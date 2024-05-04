@@ -20,7 +20,6 @@ class AsCleanEvaluator(Evaluator):
             differences[i] = diff_result
         return differences
 
-
     def evaluate(self, dates):
         as_dates = dates[dates['as'] == True]['date']
         diff = self.get_diff(as_dates)
