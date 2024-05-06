@@ -1,6 +1,3 @@
-import datetime
-from functools import partial
-
 import numpy as np
 import pandas as pd
 
@@ -11,27 +8,22 @@ from sampler import Sampler
 
 class DateScheduler:
 
-    def __init__(self, year:int):
+    def __init__(self, year: int):
         self.evaluators = []
         self.year = year
 
     def load_people(self, path: str):
         self.groups = pd.read_excel(path)
-        self.max_p=0
+        self.max_p = 0
         self.max_dates = None
-
         pass
 
     def get_groups(self):
         return self.groups
 
     def load_dates(self, path: str):
-        # date_parser = lambda x: pd.datetime.strptime(x, '%d.%m.%Y')
-        # date_parser = partial(pd.to_datetime, format='%d.%m.%Y')
-        # self.initial_dates = pd.read_excel(path)
         df = pd.read_excel(path)
 
-        # map df['date'] to tay of year or random number
         df['date'] = df['date'].map(lambda x: convert_to_day_of_year(x, throw_errors=False))
         df = df.sort_values(by='date', inplace=False)
 
@@ -49,23 +41,17 @@ class DateScheduler:
     def add_evaluator(self, evaluator: Evaluator):
         self.evaluators.append(evaluator)
 
-    # def initialize(self, sampler: Sampler):
-    #     for index, row in self.dates.iterrows():
-    #         self.dates.loc[index, 'date'] = sampler.sample(row['date'])
-    #     self.dates.sort_values(by='date', inplace=True)
-
     def generate_candidate2(self):
         candidate = self.dates.copy()
         for index, row in candidate.iterrows():
             candidate.loc[index, 'date'] = self.sampler.sample(row['date'])
-        # sort candidate by date ascending
         return candidate.sort_values(by='date', inplace=False)
-        # return candidate
+
     def generate_candidate(self):
 
         rows_to_change = np.random.randint(0, len(self.dates), np.random.randint(1, 4))
         candidate = self.dates.copy()
-        if len(rows_to_change)==2 and np.random.randint(10) < 1:
+        if len(rows_to_change) == 2 and np.random.randint(10) < 1:
             candidate.loc[rows_to_change[0], 'date'] = self.dates.loc[rows_to_change[1], 'date']
             candidate.loc[rows_to_change[1], 'date'] = self.dates.loc[rows_to_change[0], 'date']
         else:
@@ -105,19 +91,6 @@ class DateScheduler:
                 reject += 1
 
         self.print_evaluation(accept, initial_p, reject, self.dates)
-
-        # for i in range(iterations):
-        #     cand = self.generate_candidate()
-        #     new_p = self.evaluate_candidate(cand)
-        #     if new_p > initial_p:
-        #         self.dates = cand
-        #         initial_p = new_p
-        #     if (initial_p > self.max_p):
-        #         self.max_p = initial_p
-        #         self.max_dates = self.dates.copy(True)
-        # print(initial_p)
-        #
-        # return initial_p
 
     def get_max(self):
         return self.max_p
