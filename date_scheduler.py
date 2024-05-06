@@ -79,6 +79,12 @@ class DateScheduler:
             total *= evaluator.evaluate(candidate)
         return total
 
+    def print_evaluation(self, accept, initial_p, reject, candidate):
+        var = str(initial_p) + ";" + str(accept / (accept + reject)) + ";" + str(self.max_p)
+        for evaluator in self.evaluators:
+            var = var + ";" + str(type(evaluator)) + " :" + str(evaluator.evaluate(candidate))
+        print(var)
+
     def iterate(self, iterations=1):
         initial_p = self.evaluate_candidate(self.dates)
         accept = 0
@@ -98,7 +104,7 @@ class DateScheduler:
             else:
                 reject += 1
 
-        print(initial_p, ";", accept / (accept + reject),";",self.max_p )
+        self.print_evaluation(accept, initial_p, reject, self.dates)
 
         # for i in range(iterations):
         #     cand = self.generate_candidate()
