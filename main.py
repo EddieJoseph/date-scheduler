@@ -28,7 +28,7 @@ def worker(td):
 def multithreaded_iteration(ti_data:SchedulerData, ti_config, num_threads, num_iterations=1, limit=False):
     queue = multiprocessing.Queue()
 
-    td = [(ti_data.clone(), ti_config, num_iterations, limit) for _ in range(num_threads)]
+    td = [(ti_data, ti_config, num_iterations, limit) for _ in range(num_threads)]
     with multiprocessing.Pool(processes=num_threads) as pool:
         results = pool.map(worker, td)
         best = results[0]
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     month_evaluator = MonthEvaluator()
 
     # data = SchedulerData.create_from('input/ex_init.xlsx')
-    data = SchedulerData.create_from('output/dates12.xlsx')
+    data = SchedulerData.create_from('input/staring_point.xlsx')
     config = SchedulerConfig.create_from('input/people.xlsx', year,
                                          [evaluator, holiday_evaluator, as_evaluator, weekend_evaluator,
                                           week_clumping_evaluator, same_day_evaluator, month_evaluator, jf_holiday_evaluator], sampler)
@@ -79,16 +79,16 @@ if __name__ == '__main__':
         data.save_to(year, 'output/dates' + str(i) + '.xlsx')
         convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
 
-    # for i in range(20, 40):
-    #     # data = iterate(data, config, 1000, True)
-    #     # print("Score: ", data.score)
-    #
-    #
-    #     data = multithreaded_iteration(data, config, 32, 10000, True)
-    #     print("Score: ", data.score)
-    #
-    #     data.save_to(year, 'output/dates' + str(i) + '.xlsx')
-    #     convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
+    for i in range(20, 60):
+        # data = iterate(data, config, 1000, True)
+        # print("Score: ", data.score)
+
+
+        data = multithreaded_iteration(data, config, 32, 2000, True)
+        print("Score: ", data.score)
+
+        data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+        convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
 
 
     # for m in range(200):
