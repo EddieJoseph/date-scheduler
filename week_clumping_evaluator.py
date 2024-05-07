@@ -15,5 +15,5 @@ class WeekClumpingEvaluator(Evaluator):
     def evaluate(self, dates):
         # dates[dates['date']]
         weeks = dates['date'].apply(self.get_week).value_counts()
-        tmp = 0.95**len(weeks[weeks > 2])*0.5**len(weeks[weeks > 4])
+        tmp = 0.99**len(weeks[weeks > 2])*0.9**len(weeks[weeks > 3])*0.5**len(weeks[weeks > 5])
         return tmp
