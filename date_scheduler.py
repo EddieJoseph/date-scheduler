@@ -37,7 +37,7 @@ def print_evaluation(max, max_p, cand, cand_p, config: SchedulerConfig, accept, 
     print(var)
 
 
-def iterate(data: SchedulerData, config: SchedulerConfig, iterations=1):
+def iterate(data: SchedulerData, config: SchedulerConfig, iterations=1, limit=False):
     accepted_p = evaluate_candidate(data.dates, config)
     data.score = accepted_p
     accepted = data.dates.copy()
@@ -45,18 +45,20 @@ def iterate(data: SchedulerData, config: SchedulerConfig, iterations=1):
     accept = 0
     reject = 0
     for i in range(iterations):
-        cand = generate_candidate(accepted, config)
+        cand = generate_candidate(accepted, config, limit_randomness=limit)
         cand_p = evaluate_candidate(cand, config)
 
         if cand_p > data.score:
             data.score = cand_p
             data.dates = cand.copy(True)
 
-        if min(1, cand_p / accepted_p) > np.random.rand() ** 0.03:
+        if min(1.0, cand_p / accepted_p) > np.random.rand():
             accepted = cand
             accepted_p = cand_p
             accept += 1
         else:
             reject += 1
+        # if(i % 20 == 0):
+        #     print(accepted_p)
     print_evaluation(data.dates, data.score, accepted, accepted_p, config, accept, reject)
     return data

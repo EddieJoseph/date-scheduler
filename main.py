@@ -3,10 +3,12 @@ import multiprocessing
 import numpy as np
 
 from as_clean_evaluator import AsCleanEvaluator
+from convert_output import convert_process_result, convert_output
 from date_scheduler import iterate
 from date_utils import get_week_days_of_year
 from filtered_combined_sampler import FilteredCombinedSampler
 from holiday_evaluator import HolidayEvaluator
+from jf_holiday_evaluator import JfHolidayEvaluator
 from month_evaluator import MonthEvaluator
 from no_change_date_sampler import NoChangeDateSampler
 from normal_date_sampler import NormalDateSampler
@@ -19,14 +21,14 @@ from weekend_evaluator import WeekendEvaluator
 
 
 def worker(td):
-    t_data = iterate(td[0], td[1], 1000)
+    t_data = iterate(td[0], td[1], td[2], td[3])
     return t_data
 
 
-def multithreaded_iteration(ti_data, ti_config, num_threads):
+def multithreaded_iteration(ti_data:SchedulerData, ti_config, num_threads, num_iterations=1, limit=False):
     queue = multiprocessing.Queue()
 
-    td = [(ti_data, ti_config) for _ in range(num_threads)]
+    td = [(ti_data.clone(), ti_config, num_iterations, limit) for _ in range(num_threads)]
     with multiprocessing.Pool(processes=num_threads) as pool:
         results = pool.map(worker, td)
         best = results[0]
@@ -53,23 +55,41 @@ if __name__ == '__main__':
 
     evaluator = TypeSpreadEvaluator()
     holiday_evaluator = HolidayEvaluator('input/holidays.xlsx')
+    jf_holiday_evaluator = JfHolidayEvaluator('input/holidays.xlsx')
     as_evaluator = AsCleanEvaluator(year)
     weekend_evaluator = WeekendEvaluator(year)
     week_clumping_evaluator = WeekClumpingEvaluator(year)
     same_day_evaluator = SameDayEvaluator()
     month_evaluator = MonthEvaluator()
 
-    data = SchedulerData.create_from('input/ex_init.xlsx')
+    # data = SchedulerData.create_from('input/ex_init.xlsx')
+    data = SchedulerData.create_from('output/dates12.xlsx')
     config = SchedulerConfig.create_from('input/people.xlsx', year,
                                          [evaluator, holiday_evaluator, as_evaluator, weekend_evaluator,
-                                          week_clumping_evaluator, same_day_evaluator, month_evaluator], sampler)
+                                          week_clumping_evaluator, same_day_evaluator, month_evaluator, jf_holiday_evaluator], sampler)
 
     for i in range(20):
-        data = iterate(data, config, 100)
+        # data = iterate(data, config, 1000, False)
+        # print("Score: ", data.score)
+
+
+        data = multithreaded_iteration(data, config, 32, 2000, False)
         print("Score: ", data.score)
 
-        # data = multithreaded_iteration(data, config, 32)
-        # print("Score: ", data.score)
+        data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+        convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
+
+    # for i in range(20, 40):
+    #     # data = iterate(data, config, 1000, True)
+    #     # print("Score: ", data.score)
+    #
+    #
+    #     data = multithreaded_iteration(data, config, 32, 10000, True)
+    #     print("Score: ", data.score)
+    #
+    #     data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    #     convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
+
 
     # for m in range(200):
     #     # res = scheduler.generate_candidate()

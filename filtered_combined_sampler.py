@@ -20,10 +20,11 @@ class FilteredCombinedSampler(Sampler):
         blocked_dates = []
 
         for index, row in holidays.iterrows():
-            start = convert_to_day_of_year(row['start'])
-            end = convert_to_day_of_year(row['end']) + 1
-            for d in range(start, end):
-                blocked_dates.append(d)
+            if not row['only_jf']:
+                start = convert_to_day_of_year(row['start'])
+                end = convert_to_day_of_year(row['end']) + 1
+                for d in range(start, end):
+                    blocked_dates.append(d)
 
         self.blocked_dates = np.unique(np.concatenate([blocked_dates, get_sundays_of_year(year)]))
 
