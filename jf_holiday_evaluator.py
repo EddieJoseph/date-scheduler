@@ -19,5 +19,5 @@ class JfHolidayEvaluator(Evaluator):
                     self.blocked_dates.append(d)
 
     def evaluate(self, dates: pd.DataFrame) -> float:
-        filtered_dates = dates['type' == 'J']
+        filtered_dates = dates[dates['type'] == 'J']
         return 0.8 ** len(filtered_dates[(filtered_dates['date'].isin(self.blocked_dates))])
