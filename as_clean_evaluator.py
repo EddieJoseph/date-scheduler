@@ -23,5 +23,5 @@ class AsCleanEvaluator(Evaluator):
     def evaluate(self, dates):
         as_dates = dates[dates['as'] == True]['date']
         diff = self.get_diff(as_dates)
-        tmp = 0.8**len(diff[diff < self.min_days])
+        tmp = 0.6**len(diff[diff < self.min_days])
         return tmp
