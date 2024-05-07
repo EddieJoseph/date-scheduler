@@ -65,11 +65,11 @@ if __name__ == '__main__':
                                           week_clumping_evaluator, same_day_evaluator, month_evaluator], sampler)
 
     for i in range(20):
-        # data = iterate(data, config, 50)
-        # print("Score: ", data.score)
-
-        data = multithreaded_iteration(data, config, 32)
+        data = iterate(data, config, 100)
         print("Score: ", data.score)
+
+        # data = multithreaded_iteration(data, config, 32)
+        # print("Score: ", data.score)
 
     # for m in range(200):
     #     # res = scheduler.generate_candidate()
