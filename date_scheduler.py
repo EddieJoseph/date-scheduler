@@ -1,137 +1,62 @@
-import datetime
-from functools import partial
-
 import numpy as np
-import pandas as pd
+from pandas import DataFrame
 
-from date_utils import convert_to_day_of_year, convert_to_datetime
-from evaluator import Evaluator
-from sampler import Sampler
+from scheduler_config import SchedulerData, SchedulerConfig
 
 
-class DateScheduler:
+def evaluate_candidate(candidate: DataFrame, config: SchedulerConfig):
+    total = 1
+    for evaluator in config.evaluators:
+        total *= evaluator.evaluate(candidate)
+    return total
 
-    def __init__(self, year:int):
-        self.evaluators = []
-        self.year = year
 
-    def load_people(self, path: str):
-        self.groups = pd.read_excel(path)
-        self.max_p=0
-        self.max_dates = None
-
-        pass
-
-    def get_groups(self):
-        return self.groups
-
-    def load_dates(self, path: str):
-        # date_parser = lambda x: pd.datetime.strptime(x, '%d.%m.%Y')
-        # date_parser = partial(pd.to_datetime, format='%d.%m.%Y')
-        # self.initial_dates = pd.read_excel(path)
-        df = pd.read_excel(path)
-
-        # map df['date'] to tay of year or random number
-        df['date'] = df['date'].map(lambda x: convert_to_day_of_year(x, throw_errors=False))
-        df = df.sort_values(by='date', inplace=False)
-
-        self.initial_dates = df
-        self.dates = df.copy(True)
-
-    def save_dates(self, path: str):
-        df = self.dates.copy(True)
-        df['date'] = df['date'].map(lambda x: convert_to_datetime(x, self.year))
-        df.to_excel(path, index=False)
-
-    def set_sampler(self, sampler: Sampler):
-        self.sampler = sampler
-
-    def add_evaluator(self, evaluator: Evaluator):
-        self.evaluators.append(evaluator)
-
-    # def initialize(self, sampler: Sampler):
-    #     for index, row in self.dates.iterrows():
-    #         self.dates.loc[index, 'date'] = sampler.sample(row['date'])
-    #     self.dates.sort_values(by='date', inplace=True)
-
-    def generate_candidate2(self):
-        candidate = self.dates.copy()
+def generate_candidate(dates: DataFrame, config: SchedulerConfig, limit_randomness=False):
+    if not limit_randomness:
+        candidate = dates.copy()
         for index, row in candidate.iterrows():
-            candidate.loc[index, 'date'] = self.sampler.sample(row['date'])
+            candidate.loc[index, 'date'] = config.sampler.sample(row['date'])
         # sort candidate by date ascending
         return candidate.sort_values(by='date', inplace=False)
-        # return candidate
-    def generate_candidate(self):
-
-        rows_to_change = np.random.randint(0, len(self.dates), np.random.randint(1, 4))
-        candidate = self.dates.copy()
-        if len(rows_to_change)==2 and np.random.randint(10) < 1:
-            candidate.loc[rows_to_change[0], 'date'] = self.dates.loc[rows_to_change[1], 'date']
-            candidate.loc[rows_to_change[1], 'date'] = self.dates.loc[rows_to_change[0], 'date']
+    else:
+        rows_to_change = np.random.randint(0, len(dates), np.random.randint(1, 4))
+        candidate = dates.copy()
+        if len(rows_to_change) == 2 and np.random.randint(10) < 1:
+            candidate.loc[rows_to_change[0], 'date'] = dates.loc[rows_to_change[1], 'date']
+            candidate.loc[rows_to_change[1], 'date'] = dates.loc[rows_to_change[0], 'date']
         else:
             for index in rows_to_change:
-                self.dates.loc[index, 'date'] = self.sampler.sample(self.dates.loc[index, 'date'])
+                dates.loc[index, 'date'] = config.sampler.sample(dates.loc[index, 'date'])
         return candidate.sort_values(by='date', inplace=False)
 
-    def evaluate_candidate(self, candidate):
-        total = 1
-        for evaluator in self.evaluators:
-            total *= evaluator.evaluate(candidate)
-        return total
 
-    def print_evaluation(self, accept, initial_p, reject, candidate):
-        var = str(initial_p) + ";" + str(accept / (accept + reject)) + ";" + str(self.max_p)
-        for evaluator in self.evaluators:
-            var = var + ";" + str(type(evaluator)) + " :" + str(evaluator.evaluate(candidate))
-        print(var)
+def print_evaluation(max, max_p, cand, cand_p, config: SchedulerConfig, accept, reject):
+    var = "{:.2E}".format(cand_p) + ";" + str(accept / (accept + reject)) + ";" + "{:.2E}".format(max_p)
+    for evaluator in config.evaluators:
+        var = var + ";" + type(evaluator).__name__ + " :" + "{:.2E}".format(evaluator.evaluate(cand))
+    print(var)
 
-    def iterate(self, iterations=1):
-        initial_p = self.evaluate_candidate(self.dates)
-        accept = 0
-        reject = 0
-        for i in range(iterations):
-            cand = self.generate_candidate()
-            new_p = self.evaluate_candidate(cand)
 
-            if (initial_p > self.max_p):
-                self.max_p = initial_p
-                self.max_dates = self.dates.copy(True)
+def iterate(data: SchedulerData, config: SchedulerConfig, iterations=1):
+    accepted_p = evaluate_candidate(data.dates, config)
+    data.score = accepted_p
+    accepted = data.dates.copy()
+    cand = data.dates.copy()
+    accept = 0
+    reject = 0
+    for i in range(iterations):
+        cand = generate_candidate(accepted, config)
+        cand_p = evaluate_candidate(cand, config)
 
-            if min(1, new_p / initial_p) > np.random.rand() ** 0.03:
-                self.dates = cand
-                initial_p = new_p
-                accept += 1
-            else:
-                reject += 1
+        if cand_p > data.score:
+            data.score = cand_p
+            data.dates = cand.copy(True)
 
-        self.print_evaluation(accept, initial_p, reject, self.dates)
-
-        # for i in range(iterations):
-        #     cand = self.generate_candidate()
-        #     new_p = self.evaluate_candidate(cand)
-        #     if new_p > initial_p:
-        #         self.dates = cand
-        #         initial_p = new_p
-        #     if (initial_p > self.max_p):
-        #         self.max_p = initial_p
-        #         self.max_dates = self.dates.copy(True)
-        # print(initial_p)
-        #
-        # return initial_p
-
-    def get_max(self):
-        return self.max_p
-
-    def save_max(self, path: str):
-        df = self.max_dates.copy(True)
-        df['date'] = df['date'].map(lambda x: convert_to_datetime(x, self.year))
-        df.to_excel(path, index=False)
-
-    def iterate_until(self, iterations=1, threshold=0.9):
-        initial_p = self.evaluate_candidate(self.dates)
-        while initial_p < threshold:
-            initial_p = self.iterate(iterations)
-        return initial_p
-
-    def get_result(self):
-        return self.dates
+        if min(1, cand_p / accepted_p) > np.random.rand() ** 0.03:
+            accepted = cand
+            accepted_p = cand_p
+            accept += 1
+        else:
+            reject += 1
+    print_evaluation(data.dates, data.score, accepted, accepted_p, config, accept, reject)
+    return data
