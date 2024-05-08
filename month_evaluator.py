@@ -16,6 +16,4 @@ class MonthEvaluator(Evaluator):
         diff = filtered['month'] - months
         violations = diff.abs().sum()
 
-
-
-        return 0.95 ** violations
+        return 0.9 ** violations

@@ -68,25 +68,72 @@ if __name__ == '__main__':
                                          [evaluator, holiday_evaluator, as_evaluator, weekend_evaluator,
                                           week_clumping_evaluator, same_day_evaluator, month_evaluator, jf_holiday_evaluator], sampler)
 
-    for i in range(20):
-        # data = iterate(data, config, 1000, False)
-        # print("Score: ", data.score)
+    # for i in range(20):
+    #     # data = iterate(data, config, 1000, False)
+    #     # print("Score: ", data.score)
+    #
+    #
+    #     data = multithreaded_iteration(data, config, 32, 2000, False)
+    #     print("Score: ", data.score)
+    #
+    #     data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    #     convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
+    #
+    # for i in range(20, 40):
+    #     # data = iterate(data, config, 1000, True)
+    #     # print("Score: ", data.score)
+    #
+    #
+    #     data = multithreaded_iteration(data, config, 32, 2000, True)
+    #     print("Score: ", data.score)
+    #
+    #     data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    #     convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
+    #
+    # for i in range(40, 45):
+    #     data = multithreaded_iteration(data, config, 32, 2000, False)
+    #     print("Score: ", data.score)
+    #     data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    #     convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
+    # for i in range(45, 60):
+    #     data = multithreaded_iteration(data, config, 32, 2000, False)
+    #     print("Score: ", data.score)
+    #     data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    #     convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
+    #
+    # for i in range(60, 65):
+    #     data = multithreaded_iteration(data, config, 32, 2000, False)
+    #     print("Score: ", data.score)
+    #     data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    #     convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
+    # for i in range(65, 80):
+    #     data = multithreaded_iteration(data, config, 32, 2000, False)
+    #     print("Score: ", data.score)
+    #     data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    #     convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
+    #
+    # for i in range(80, 120):
+    #     data = multithreaded_iteration(data, config, 32, 4000, True)
+    #     print("Score: ", data.score)
+    #     data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    #     convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
 
 
-        data = multithreaded_iteration(data, config, 32, 2000, False)
+    for i in range(200,240):
+        data = multithreaded_iteration(data, config, 32, 4000, True)
         print("Score: ", data.score)
-
         data.save_to(year, 'output/dates' + str(i) + '.xlsx')
         convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
 
-    for i in range(20, 60):
-        # data = iterate(data, config, 1000, True)
-        # print("Score: ", data.score)
-
-
-        data = multithreaded_iteration(data, config, 32, 2000, True)
+    for i in range(240,280):
+        data = multithreaded_iteration(data, config, 32, 10000, True)
         print("Score: ", data.score)
+        data.save_to(year, 'output/dates' + str(i) + '.xlsx')
+        convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
 
+    for i in range(280,300):
+        data = multithreaded_iteration(data, config, 32, 20000, True)
+        print("Score: ", data.score)
         data.save_to(year, 'output/dates' + str(i) + '.xlsx')
         convert_output('output/dates' + str(i) + '.xlsx','output/dates_pretty' + str(i) + '.xlsx')
 
