@@ -22,11 +22,11 @@ def generate_candidate(dates: DataFrame, config: SchedulerConfig, limit_randomne
         rows_to_change = np.random.randint(0, len(dates), np.random.randint(1, 4))
         candidate = dates.copy()
         if len(rows_to_change) == 2 and np.random.randint(10) < 1:
-            candidate.loc[rows_to_change[0], 'date'] = dates.loc[rows_to_change[1], 'date']
-            candidate.loc[rows_to_change[1], 'date'] = dates.loc[rows_to_change[0], 'date']
+            candidate.loc[rows_to_change[0], 'date'] = candidate.loc[rows_to_change[1], 'date']
+            candidate.loc[rows_to_change[1], 'date'] = candidate.loc[rows_to_change[0], 'date']
         else:
             for index in rows_to_change:
-                dates.loc[index, 'date'] = config.sampler.sample(dates.loc[index, 'date'])
+                candidate.loc[index, 'date'] = config.sampler.sample(candidate.loc[index, 'date'])
         return candidate.sort_values(by='date', inplace=False)
 
 
@@ -34,6 +34,13 @@ def print_evaluation(max, max_p, cand, cand_p, config: SchedulerConfig, accept, 
     var = "{:.2E}".format(cand_p) + ";" + str(accept / (accept + reject)) + ";" + "{:.2E}".format(max_p)
     for evaluator in config.evaluators:
         var = var + ";" + type(evaluator).__name__ + " :" + "{:.2E}".format(evaluator.evaluate(cand))
+    print(var)
+
+
+def print_details(data: SchedulerData, config: SchedulerConfig):
+    var = "Score: {:.6E}".format(data.score)
+    for evaluator in config.evaluators:
+        var = var + "\t" + type(evaluator).__name__ + " :" + "{:.2E}".format(evaluator.evaluate(data.dates))
     print(var)
 
 
@@ -50,7 +57,7 @@ def iterate(data: SchedulerData, config: SchedulerConfig, iterations=1, limit=Fa
 
         if cand_p > data.score:
             data.score = cand_p
-            data.dates = cand.copy(True)
+            data.dates = cand
 
         if min(1.0, cand_p / accepted_p) > np.random.rand():
             accepted = cand
@@ -60,5 +67,5 @@ def iterate(data: SchedulerData, config: SchedulerConfig, iterations=1, limit=Fa
             reject += 1
         # if(i % 20 == 0):
         #     print(accepted_p)
-    print_evaluation(data.dates, data.score, accepted, accepted_p, config, accept, reject)
+    # print_evaluation(data.dates, data.score, accepted, accepted_p, config, accept, reject)
     return data
