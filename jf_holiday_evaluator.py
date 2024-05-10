@@ -12,7 +12,7 @@ class JfHolidayEvaluator(Evaluator):
         self.blocked_dates = []
 
         for index, row in holidays.iterrows():
-            if not row['only_jf']:
+            if row['only_jf']:
                 start = convert_to_day_of_year(row['start'])
                 end = convert_to_day_of_year(row['end']) + 1
                 for d in range(start, end):
