@@ -15,15 +15,16 @@ def generate_candidate(dates: DataFrame, config: SchedulerConfig, limit_randomne
     if not limit_randomness:
         candidate = dates.copy()
         for index, row in candidate.iterrows():
-            candidate.loc[index, 'date'] = config.sampler.sample(row['date'])
-        # sort candidate by date ascending
+            if not row['fixed']:
+                candidate.loc[index, 'date'] = config.sampler.sample(row['date'])
         return candidate.sort_values(by='date', inplace=False)
     else:
-        rows_to_change = np.random.randint(0, len(dates), np.random.randint(1, 4))
+        not_fixed_indices = dates[dates['fixed'] == False].index
+        rows_to_change = np.random.choice(not_fixed_indices, np.random.randint(1, min(len(not_fixed_indices)+1, 4)), replace=False)
         candidate = dates.copy()
-        if len(rows_to_change) == 2 and np.random.randint(10) < 1:
-            candidate.loc[rows_to_change[0], 'date'] = candidate.loc[rows_to_change[1], 'date']
-            candidate.loc[rows_to_change[1], 'date'] = candidate.loc[rows_to_change[0], 'date']
+        if len(rows_to_change) == 2 and np.random.randint(10) < 5:
+            candidate.loc[rows_to_change[0], 'date'] = dates.loc[rows_to_change[1], 'date']
+            candidate.loc[rows_to_change[1], 'date'] = dates.loc[rows_to_change[0], 'date']
         else:
             for index in rows_to_change:
                 candidate.loc[index, 'date'] = config.sampler.sample(candidate.loc[index, 'date'])

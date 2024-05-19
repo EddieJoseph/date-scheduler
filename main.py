@@ -63,19 +63,17 @@ if __name__ == '__main__':
     same_day_evaluator = SameDayEvaluator()
     month_evaluator = MonthEvaluator()
 
-    data = SchedulerData.create_from('input/best_input.xlsx')
-    # data = SchedulerData.create_from('input/best_reduced_input.xlsx')
+    # data = SchedulerData.create_from('input/best_input.xlsx')
+    data = SchedulerData.create_from('input/dates_reduced.xlsx')
     config = SchedulerConfig.create_from('input/people.xlsx', year,
                                          [evaluator, holiday_evaluator, as_evaluator, weekend_evaluator,
                                           week_clumping_evaluator, same_day_evaluator, month_evaluator, jf_holiday_evaluator], sampler)
 
-    for i in range(100):
+    for i in range(1000):
         # data = iterate(data, config, 20, True)
-        # print_details(data, config)
-
-
         data = multithreaded_iteration(data, config, 32, 1000, True)
         # print("Score: ", data.score)
+        # print_details(data, config)
         print_details(data, config)
 
 
