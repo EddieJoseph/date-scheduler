@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     # sampler = CombinedSampler([no_change_sampler,small_sampler,medium_sampler,large_sampler],[0.9,0.2,0.07,0.03])
     sampler = FilteredCombinedSampler([small_sampler, medium_sampler, large_sampler],
-                                      [0.6, 0.35, 0.05], 2025, 'input/holidays.xlsx')
+                                      [0.6, 0.3, 0.1], 2025, 'input/holidays.xlsx')
     initialization_sampler = UniformSampler()
 
     evaluator = TypeSpreadEvaluator()
@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     for i in range(1000):
         # data = iterate(data, config, 20, True)
-        data = multithreaded_iteration(data, config, 32, 1000, True)
+        data = multithreaded_iteration(data, config, 32, 5000, True)
         # print("Score: ", data.score)
         # print_details(data, config)
         print_details(data, config)
