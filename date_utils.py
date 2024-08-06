@@ -61,3 +61,21 @@ def get_month_from_day_of_year(day_of_year):
         return 11
     else:
         return 12
+
+def get_weekday_name(weekday):
+    # Get weekday name
+    if weekday == 0:
+        return 'Montag'
+    if weekday == 1:
+        return 'Dienstag'
+    if weekday == 2:
+        return 'Mittwoch'
+    if weekday == 3:
+        return 'Donnerstag'
+    if weekday == 4:
+        return 'Freitag'
+    if weekday == 5:
+        return 'Samstag'
+    if weekday == 6:
+        return 'Sonntag'
+    raise Exception('Invalid')
