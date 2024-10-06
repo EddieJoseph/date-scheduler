@@ -4,11 +4,10 @@ from openpyxl.workbook import Workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 
-def convert_output():
-    df = load_output("input/ex_init.xlsx")
-    df = load_output("output/dates_max11.xlsx")
-    # df = convert_process_result(df)
-    save_converted_output(df, "output/pretty_output.xlsx")
+def convert_output(input_path, output_path):
+    df = load_output(input_path)
+    df = convert_process_result(df)
+    save_converted_output(df, output_path)
 
 def load_output(config_path: str):
     return pd.read_excel(config_path)
