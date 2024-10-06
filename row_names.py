@@ -1,5 +1,6 @@
 from enum import Enum
 class RowNames(Enum):
+    ID = "id"
     DATE = "date"
     NAME = "name"
     TYPE = "type"
@@ -20,6 +21,7 @@ class RowNames(Enum):
     CALLED_UP = "called_up"
     RESPONSIBLE = "responsible"
     DETAILS = "details"
+    INCLUDE = "include"
 
 class HolidayRowNames(Enum):
     NAME = "name"
