@@ -1,6 +1,10 @@
+import os
+import shutil
+
 from date_scheduler import DateScheduler
-from date_utils import convert_to_date, get_weekday_name
+from date_utils import convert_to_date, get_weekday_name, get_saturdays_of_year
 from enumerator import GroupesEnumerator
+from datetime import date
 
 
 def translate_umlauts(text):
@@ -33,7 +37,7 @@ def generate_group(series, current_group):
     if off:
         return 'Off / Wm'
     if asi:
-        return 'ASSI'
+        return 'ASSI' +( (' mit RB' if current_group != 'rb' and rb else '') + (' mit KB' if current_group != 'kb' and kb else '') + (' mit GB' if current_group != 'gb' and gb else ''))
     if type == 'ASIKVK':
         return 'ASSI-Ausbildner'
     if mot:
@@ -41,15 +45,47 @@ def generate_group(series, current_group):
     return 'spez. Aufgebot'
 
 
+def get_time(series):
+    if series['type'] == 'KS':
+        return '08:00 - 17:00'
+    if series['type'] == 'J':
+        return '08:00 - 12:00'
+    if series['type'] == 'MS':
+        return '08:00 - 17:00'
+    if series['date'] in get_saturdays_of_year(2025):
+        return '08:00 - 12:00'
+    if series['type'] == 'IFA':
+        return '07:00 - 18:00'
+    if series['type'] == 'SAN':
+        return '17:00 - 20:00'
+    if series['type'] == 'ASI':
+        return '19:00 - 22:00'
+    if series['type'] == 'ASIKONT':
+        return '08:00 - 12:00'
+    if series['type'] == 'ASSITST':
+        return '19:00 - 22:00'
+    if series['type'] == 'ASIKVK':
+        return '19:00 - 22:00'
+    if series['type'] == 'ST':
+        return '19:00 - 20:00'
+    if series['type'] == 'B':
+        return '19:00 - 22:00'
+
+    if(series['kb'] or series['gb']) and not series['rb']:
+        return '18:30 - 21:30'
+
+    return '19:00 - 22:00'
+
+
 def generate_row(series, index, enumerator, current_group):
     #read file row_templ.tex
-    with open('row_tmpl.tex', 'r') as file:
+    with open('pdf/row_tmpl.tex', 'r') as file:
         row = file.read()
         date = convert_to_date(series['date'], 2025)
         date.weekday()
         row = row.replace('$nr', str(index))
         row = row.replace('$date', date.strftime('%d.%m.%Y'))
-        row = row.replace('$time', str('19:00 - 22:00'))
+        row = row.replace('$time', get_time(series))
         row = row.replace('$day', str(get_weekday_name(date.weekday())))
         row = row.replace('$name', str(translate_name(series['name'], enumerator, current_group)))
         row = row.replace('$group', generate_group(series, current_group))
@@ -124,15 +160,12 @@ def filter_gb(dates):
 def filter_jf(dates):
     return dates[(dates['type'] == 'J')]
 
-if __name__ == '__main__':
+def generate_tex(current_group):
     year = 2025
     scheduler = DateScheduler(year)
     scheduler.load_dates('input/dates_combined.xlsx')
     enumerator = GroupesEnumerator()
-
     dates = scheduler.initial_dates
-
-    current_group = 'jf'
     dates_kp = {}
     if current_group == 'rb':
         dates_kp = filter_rb(dates)
@@ -143,14 +176,53 @@ if __name__ == '__main__':
     if current_group == 'jf':
         dates_kp = filter_jf(dates)
 
-
-    with open('outputrows.tex', 'w') as output_file:
+    with open('pdf/outputrows.tex', 'w') as output_file:
         i = 1
         for index, row in dates_kp.iterrows():
             tmp = generate_row(row, i, enumerator, current_group)
             output_file.writelines(translate_umlauts(tmp))
             i += 1
-            print(tmp)
-        #print(row, index)
+            # print(tmp)
 
-    #print(scheduler.initial_dates)
+
+
+def generate_pdf(group, title, displaytitle, version, date, filename):
+    generate_tex(group)
+    with open('pdf/Jahresprogramm_tmpl.tex', 'r') as template:
+        with open('pdf/Jahresprogramm.tex', 'w') as output:
+            for line in template:
+                line = line.replace('$title', title)
+                line = line.replace('$displaytitle', displaytitle)
+                line = line.replace('$version', version)
+                line = line.replace('$date', date)
+                output.write(line)
+
+    cline = 'cd pdf && lualatex.exe -synctex=1 -interaction=nonstopmode Jahresprogramm.tex'
+    if os.system(str(cline)):
+        raise RuntimeError('program {} failed!'.format(str(cline)))
+
+    shutil.copy('pdf/Jahresprogramm.pdf', 'pdf/' + filename+'.pdf')
+    print('pdf/' + filename+".pdf")
+
+
+if __name__ == '__main__':
+    version = '0.3'
+    currentdate = date.today().strftime('%d.%m.%Y')
+
+    generate_pdf('jf','Jahresprogramm JF','Jugendfeuerwehr','0.3', currentdate, 'Jahresprogramm_JF_'+version)
+    generate_pdf('rb', 'Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', '0.3', currentdate,
+                 'Jahresprogramm_RB_'+version)
+    generate_pdf('kb', 'Jahresprogramm KB', 'Feuerwehr Kleinbasel', '0.3', currentdate,
+                 'Jahresprogramm_KB_'+version)
+    generate_pdf('gb', 'Jahresprogramm GB', 'Feuerwehr Grossbasel', '0.3', currentdate,
+                 'Jahresprogramm_GB_'+version)
+
+
+
+
+
+
+
+
+
+

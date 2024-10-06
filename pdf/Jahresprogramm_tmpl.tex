@@ -1,0 +1,145 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[
+top=17mm,
+bottom=45mm,
+left=5mm,
+right=5mm
+]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+
+
+
+\usepackage{fancyhdr}
+
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[ER, OR]{}
+%\fancyhead[OR, ER]{\thepage}
+%\fancyhead[EL, OL]{
+%	\begin{tabular}[b]{l}
+%		Beispielezu\texttt{fancyhdr}\\
+%		HansFriedrichSteffani\\
+%		LehrstuhlElektr.Masch.u.Antriebe
+%	\end{tabular}
+%	\includegraphics[height=3\baselineskip]{example-image-a}
+%}
+\fancyhead[EL, OL]{
+	\includegraphics[height=2.7cm]{Briefkopfbild}
+	\begin{tabular}[b]{l}
+		\scriptsize{Justiz- und Sicherheitsdepartement des Kantons Basel-Stadt}\vspace{5pt}\\
+		\textbf{Rettung}\vspace{11pt}
+	\end{tabular}\\
+%	\begin{tabular}[b]{l}
+%		\qquad \scriptsize{Feuerwehr}\\
+%		\qquad  \scriptsize{\textbf{Milizfeuerwehr}}
+%	\end{tabular}
+	\begin{tabular}[b]{l}
+		\hspace{8mm} \(\vartriangleright\) \scriptsize{Feuerwehr}\\
+		\hspace{8mm} \(\blacktriangleright\) \scriptsize{\textbf{Milizfeuerwehr}}
+	\end{tabular}
+}
+\fancyfoot[ER, OR]{
+\scriptsize{Version $version ($date)}
+}
+\fancyfoot[EC, OC]{\scriptsize{ Seite \thepage}}
+
+
+
+\addtolength{\headheight}{2.6cm}
+
+
+
+
+
+
+
+
+\usepackage[T1]{fontenc}
+\usepackage[]{mdframed}
+\title{$title}
+\author{Ausbildungsteam Milizfeuerwehr Basel-Stadt}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{helvet}
+
+\usepackage{tabularray}
+\UseTblrLibrary{functional}
+
+
+
+\definecolor{titleBg}{rgb}{1, 0.5, 0.5}
+\definecolor{titleBorder}{rgb}{0, 0, 0 }
+\definecolor{messageBg}{rgb}{0.96, 0.96, 0.258}
+\definecolor{messageBorder}{rgb}{0.96, 0.96, 0.25 }
+\definecolor{tableHeaderBg}{rgb}{0.752,0.752,0.752}
+
+
+\mdfdefinestyle{titleframe}{%
+	linecolor=titleBorder,
+	outerlinewidth=2pt,
+	innertopmargin=12pt,
+	innerbottommargin=12pt,
+	innerrightmargin=8pt,
+	innerleftmargin=8pt,
+	leftmargin = 0pt,
+	rightmargin = 0pt,
+	backgroundcolor=titleBg
+	}
+	
+\mdfdefinestyle{messageframe}{%
+	linecolor=messageBorder,
+	outerlinewidth=2pt,
+	innertopmargin=12pt,
+	innerbottommargin=12pt,
+	innerrightmargin=8pt,
+	innerleftmargin=8pt,
+	leftmargin = 0pt,
+	rightmargin = 0pt,
+	backgroundcolor=messageBg
+}
+
+\begin{document}
+
+	\begin{mdframed}[style=titleframe, nobreak=true]
+			\textbf{$displaytitle} \qquad \qquad Jahresprogramm 2025
+	\end{mdframed}
+
+	\DefTblrTemplate{contfoot-text}{default}{}
+	\DefTblrTemplate{conthead-text}{default}{}
+	
+\footnotesize
+\begin{longtblr}[
+	label = none,
+	entry = none,
+	evaluate=\fileInput,
+	]{
+		row{1} = {tableHeaderBg},
+		hlines,
+		vlines,
+		rowhead = 1
+	}
+	\textbf{Nr.} & \textbf{Datum} & \textbf{Zeit} & \textbf{Tag} & \textbf{Kurs} & \textbf{Aufgebot für} & \textbf{Art / Thema} & \textbf{Verantwortlich}\\
+	\fileInput{outputrows.tex}
+\end{longtblr}
+
+
+\newcommand\blfootnote[1]{%
+	\begingroup
+	\renewcommand\thefootnote{}\footnote{#1}%
+	\addtocounter{footnote}{-1}%
+	\endgroup
+}
+
+\begin{mdframed}[style=messageframe, nobreak=true]
+	\center
+	\textbf{Das Jehresprogramm gilt als Aufgebot!} 
+\end{mdframed}
+
+
+
+	
+%\blfootnote{Version 3 (6.8.2024)}
+	
+\end{document}
