@@ -1,6 +1,7 @@
 import numpy as np
 from pandas import DataFrame
 
+from row_names import RowNames
 from scheduler_config import SchedulerData, SchedulerConfig
 
 
@@ -15,20 +16,20 @@ def generate_candidate(dates: DataFrame, config: SchedulerConfig, limit_randomne
     if not limit_randomness:
         candidate = dates.copy()
         for index, row in candidate.iterrows():
-            if not row['fixed']:
-                candidate.loc[index, 'date'] = config.sampler.sample(row['date'])
-        return candidate.sort_values(by='date', inplace=False)
+            if not row[RowNames.FIXED.value]:
+                candidate.loc[index, RowNames.DATE.value] = config.sampler.sample(row[RowNames.DATE.value])
+        return candidate.sort_values(by=RowNames.DATE.value, inplace=False)
     else:
-        not_fixed_indices = dates[dates['fixed'] == False].index
+        not_fixed_indices = dates[dates[RowNames.FIXED.value] == False].index
         rows_to_change = np.random.choice(not_fixed_indices, np.random.randint(1, min(len(not_fixed_indices)+1, 4)), replace=False)
         candidate = dates.copy()
         if len(rows_to_change) == 2 and np.random.randint(10) < 5:
-            candidate.loc[rows_to_change[0], 'date'] = dates.loc[rows_to_change[1], 'date']
-            candidate.loc[rows_to_change[1], 'date'] = dates.loc[rows_to_change[0], 'date']
+            candidate.loc[rows_to_change[0], RowNames.DATE.value] = dates.loc[rows_to_change[1], RowNames.DATE.value]
+            candidate.loc[rows_to_change[1], RowNames.DATE.value] = dates.loc[rows_to_change[0], RowNames.DATE.value]
         else:
             for index in rows_to_change:
-                candidate.loc[index, 'date'] = config.sampler.sample(candidate.loc[index, 'date'])
-        return candidate.sort_values(by='date', inplace=False)
+                candidate.loc[index, RowNames.DATE.value] = config.sampler.sample(candidate.loc[index, RowNames.DATE.value])
+        return candidate.sort_values(by=RowNames.DATE.value, inplace=False)
 
 
 def print_evaluation(max, max_p, cand, cand_p, config: SchedulerConfig, accept, reject):

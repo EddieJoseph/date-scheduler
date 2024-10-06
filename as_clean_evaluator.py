@@ -2,6 +2,7 @@ import numpy as np
 
 from date_utils import get_week_days_of_year
 from evaluator import Evaluator
+from row_names import RowNames
 
 
 class AsCleanEvaluator(Evaluator):
@@ -21,7 +22,7 @@ class AsCleanEvaluator(Evaluator):
         return differences
 
     def evaluate(self, dates):
-        as_dates = dates[dates['as'] == True]['date']
+        as_dates = dates[dates[RowNames.AS.value] == True][RowNames.DATE.value]
         if len(as_dates) == 0:
             return 1
         diff = self.get_diff(as_dates)

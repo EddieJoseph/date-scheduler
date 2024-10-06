@@ -3,6 +3,8 @@ from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
+from row_names import RowNames
+
 
 def convert_output(input_path, output_path):
     df = load_output(input_path)
@@ -14,18 +16,18 @@ def load_output(config_path: str):
 
 def convert_process_result(df):
     result_df = pd.DataFrame()
-    result_df['datum'] = convert_timestamp_to_date(df['date'])
-    result_df['bezeichnung'] = df['name']
-    result_df['art'] = df['type']
-    result_df['atemschutz'] = convert_to_boolean(df['as'])
-    result_df['riehen'] = convert_to_boolean(df['rb'])
-    result_df['kleinbasel'] = convert_to_boolean(df['kb'])
-    result_df['grosbasel'] = convert_to_boolean(df['gb'])
-    result_df['mot'] = convert_to_boolean(df['mot'])
-    result_df['assi'] = convert_to_boolean(df['asi'])
-    result_df['kader'] = convert_to_boolean(df['kad'])
-    result_df['offiziere'] = convert_to_boolean(df['off'])
-    result_df['samstag'] = convert_to_boolean(df['sat'])
+    result_df['datum'] = convert_timestamp_to_date(df[RowNames.DATE.value])
+    result_df['bezeichnung'] = df[RowNames.NAME.value]
+    result_df['art'] = df[RowNames.TYPE.value]
+    result_df['atemschutz'] = convert_to_boolean(df[RowNames.AS.value])
+    result_df['riehen'] = convert_to_boolean(df[RowNames.RB.value])
+    result_df['kleinbasel'] = convert_to_boolean(df[RowNames.KB.value])
+    result_df['grosbasel'] = convert_to_boolean(df[RowNames.GB.value])
+    result_df['mot'] = convert_to_boolean(df[RowNames.MOT.value])
+    result_df['assi'] = convert_to_boolean(df[RowNames.ASI.value])
+    result_df['kader'] = convert_to_boolean(df[RowNames.KADER.value])
+    result_df['offiziere'] = convert_to_boolean(df[RowNames.OFF.value])
+    result_df['samstag'] = convert_to_boolean(df[RowNames.SAT.value])
     return result_df
 
 def convert_to_boolean(series):

@@ -3,6 +3,7 @@ import datetime
 import numpy as np
 
 from evaluator import Evaluator
+from row_names import RowNames
 
 
 class WeekClumpingEvaluator(Evaluator):
@@ -13,7 +14,6 @@ class WeekClumpingEvaluator(Evaluator):
         return np.floor((day + self.wd_offset) / 7).astype(int)
 
     def evaluate(self, dates):
-        # dates[dates['date']]
-        weeks = dates['date'].apply(self.get_week).value_counts()
+        weeks = dates[RowNames.DATE.value].apply(self.get_week).value_counts()
         tmp = 0.99**len(weeks[weeks > 2])*0.9**len(weeks[weeks > 3])*0.5**len(weeks[weeks > 5])
         return tmp

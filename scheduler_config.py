@@ -3,6 +3,7 @@ from pandas import DataFrame
 
 from date_utils import convert_to_day_of_year, convert_to_datetime
 from evaluator import Evaluator
+from row_names import RowNames
 from sampler import Sampler
 
 
@@ -39,14 +40,14 @@ class SchedulerData:
     @staticmethod
     def load_dates(path: str):
         df = pd.read_excel(path)
-        df['date'] = df['date'].map(lambda x: convert_to_day_of_year(x, throw_errors=False))
-        df = df.sort_values(by='date', inplace=False)
+        df[RowNames.DATE.value] = df[RowNames.DATE.value].map(lambda x: convert_to_day_of_year(x, throw_errors=False))
+        df = df.sort_values(by=RowNames.DATE.value, inplace=False)
         return df
 
     @staticmethod
     def save_dates(dates: DataFrame, year: int, path: str):
         df = dates.copy(True)
-        df['date'] = df['date'].map(lambda x: convert_to_datetime(x, year))
+        df[RowNames.DATE.value] = df[RowNames.DATE.value].map(lambda x: convert_to_datetime(x, year))
         df.to_excel(path, index=False)
 
 

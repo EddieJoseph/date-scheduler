@@ -1,10 +1,13 @@
 import os
 import shutil
 
-from date_scheduler import DateScheduler
+# from date_scheduler import DateScheduler
 from date_utils import convert_to_date, get_weekday_name, get_saturdays_of_year
 from enumerator import GroupesEnumerator
 from datetime import date
+
+from row_names import RowNames, Groups
+from scheduler_config import SchedulerData
 
 
 def translate_umlauts(text):
@@ -18,15 +21,15 @@ def translate_umlauts(text):
 
 
 def generate_group(series, current_group):
-    rb = series['rb']
-    kb = series['kb']
-    gb = series['gb']
-    jf = series['type'] == 'J'
-    mot = series['mot']
-    asi = series['asi']
-    kad = series['kad']
-    off = series['off']
-    type = series['type']
+    rb = series[RowNames.RB.value]
+    kb = series[RowNames.KB.value]
+    gb = series[RowNames.GB.value]
+    jf = series[RowNames.TYPE.value] == 'J'
+    mot = series[RowNames.MOT.value]
+    asi = series[RowNames.ASI.value]
+    kad = series[RowNames.KADER.value]
+    off = series[RowNames.OFF.value]
+    type = series[RowNames.TYPE.value]
 
     if type == 'KP' or type == 'ST':
         return 'ganze KP' +( (' mit RB' if current_group != 'rb' and rb else '') + (' mit KB' if current_group != 'kb' and kb else '') + (' mit GB' if current_group != 'gb' and gb else ''))
@@ -46,32 +49,32 @@ def generate_group(series, current_group):
 
 
 def get_time(series):
-    if series['type'] == 'KS':
+    if series[RowNames.TYPE.value] == 'KS':
         return '08:00 - 17:00'
-    if series['type'] == 'J':
+    if series[RowNames.TYPE.value] == 'J':
         return '08:00 - 12:00'
-    if series['type'] == 'MS':
+    if series[RowNames.TYPE.value] == 'MS':
         return '08:00 - 17:00'
-    if series['date'] in get_saturdays_of_year(2025):
+    if series[RowNames.DATE.value] in get_saturdays_of_year(2025):
         return '08:00 - 12:00'
-    if series['type'] == 'IFA':
+    if series[RowNames.TYPE.value] == 'IFA':
         return '07:00 - 18:00'
-    if series['type'] == 'SAN':
+    if series[RowNames.TYPE.value] == 'SAN':
         return '17:00 - 20:00'
-    if series['type'] == 'ASI':
+    if series[RowNames.TYPE.value] == 'ASI':
         return '19:00 - 22:00'
-    if series['type'] == 'ASIKONT':
+    if series[RowNames.TYPE.value] == 'ASIKONT':
         return '08:00 - 12:00'
-    if series['type'] == 'ASSITST':
+    if series[RowNames.TYPE.value] == 'ASSITST':
         return '19:00 - 22:00'
-    if series['type'] == 'ASIKVK':
+    if series[RowNames.TYPE.value] == 'ASIKVK':
         return '19:00 - 22:00'
-    if series['type'] == 'ST':
+    if series[RowNames.TYPE.value] == 'ST':
         return '19:00 - 20:00'
-    if series['type'] == 'B':
+    if series[RowNames.TYPE.value] == 'B':
         return '19:00 - 22:00'
 
-    if(series['kb'] or series['gb']) and not series['rb']:
+    if(series[RowNames.KB.value] or series[RowNames.GB.value]) and not series[RowNames.RB.value]:
         return '18:30 - 21:30'
 
     return '19:00 - 22:00'
@@ -81,13 +84,13 @@ def generate_row(series, index, enumerator, current_group):
     #read file row_templ.tex
     with open('pdf/row_tmpl.tex', 'r') as file:
         row = file.read()
-        date = convert_to_date(series['date'], 2025)
+        date = convert_to_date(series[RowNames.DATE.value], 2025)
         date.weekday()
         row = row.replace('$nr', str(index))
         row = row.replace('$date', date.strftime('%d.%m.%Y'))
         row = row.replace('$time', get_time(series))
         row = row.replace('$day', str(get_weekday_name(date.weekday())))
-        row = row.replace('$name', str(translate_name(series['name'], enumerator, current_group)))
+        row = row.replace('$name', str(translate_name(series[RowNames.NAME.value], enumerator, current_group)))
         row = row.replace('$group', generate_group(series, current_group))
         row = row.replace('$theme', '')
         row = row.replace('$responsible', '')
@@ -96,7 +99,7 @@ def generate_row(series, index, enumerator, current_group):
 
 def translate_name(name, enumerator, current_group):
     if name == 'Kompanieübung' or name == 'Gemeinsame Übung':
-        if current_group == 'rb':
+        if current_group == RowNames.RB.value:
             return 'Kompanieübung' + enumerator.get_kp(current_group)
         else:
             return 'Zugsübung' + enumerator.get_kp(current_group)
@@ -149,31 +152,34 @@ def translate_name(name, enumerator, current_group):
 
 
 def filter_rb(dates):
-    return dates[(dates['rb']) | (dates['type'] == 'ST')| (dates['type'] == 'MS')| (dates['type'] == 'ASIKVK')| (dates['type'] == 'ASSITST')| (dates['type'] == 'ASIKONT')| (dates['type'] == 'KS')| (dates['type'] == 'B')| (dates['type'] == 'IFA')]
+    return dates[(dates[RowNames.RB.value]) | (dates[RowNames.TYPE.value] == 'ST')| (dates[RowNames.TYPE.value] == 'MS')| (dates[RowNames.TYPE.value] == 'ASIKVK')| (dates[RowNames.TYPE.value] == 'ASSITST')| (dates[RowNames.TYPE.value] == 'ASIKONT')| (dates[RowNames.TYPE.value] == 'KS')| (dates[RowNames.TYPE.value] == 'B')| (dates[RowNames.TYPE.value] == 'IFA')]
 
 def filter_kb(dates):
-    return dates[(dates['kb']) | (dates['type'] == 'ST')| (dates['type'] == 'MS')| (dates['type'] == 'ASIKVK')| (dates['type'] == 'ASSITST')| (dates['type'] == 'ASIKONT')| (dates['type'] == 'KS')| (dates['type'] == 'B')| (dates['type'] == 'IFA')]
+    return dates[(dates[RowNames.KB.value]) | (dates[RowNames.TYPE.value] == 'ST')| (dates[RowNames.TYPE.value] == 'MS')| (dates[RowNames.TYPE.value] == 'ASIKVK')| (dates[RowNames.TYPE.value] == 'ASSITST')| (dates[RowNames.TYPE.value] == 'ASIKONT')| (dates[RowNames.TYPE.value] == 'KS')| (dates[RowNames.TYPE.value] == 'B')| (dates[RowNames.TYPE.value] == 'IFA')]
 
 def filter_gb(dates):
-    return dates[(dates['gb']) | (dates['type'] == 'ST')| (dates['type'] == 'MS')| (dates['type'] == 'ASIKVK')| (dates['type'] == 'ASSITST')| (dates['type'] == 'ASIKONT')| (dates['type'] == 'KS')| (dates['type'] == 'B')| (dates['type'] == 'IFA')]
+    return dates[(dates[RowNames.GB.value]) | (dates[RowNames.TYPE.value] == 'ST')| (dates[RowNames.TYPE.value] == 'MS')| (dates[RowNames.TYPE.value] == 'ASIKVK')| (dates[RowNames.TYPE.value] == 'ASSITST')| (dates[RowNames.TYPE.value] == 'ASIKONT')| (dates[RowNames.TYPE.value] == 'KS')| (dates[RowNames.TYPE.value] == 'B')| (dates[RowNames.TYPE.value] == 'IFA')]
 
 def filter_jf(dates):
-    return dates[(dates['type'] == 'J')]
+    return dates[(dates[RowNames.TYPE.value] == 'J')]
 
 def generate_tex(current_group):
     year = 2025
-    scheduler = DateScheduler(year)
-    scheduler.load_dates('input/dates_combined.xlsx')
+
+    data = SchedulerData.create_from('input/dates_combined_u.xlsx')
+
+    # scheduler = DateScheduler(year)
+    # scheduler.load_dates('input/dates_combined.xlsx')
     enumerator = GroupesEnumerator()
-    dates = scheduler.initial_dates
+    dates = data.dates
     dates_kp = {}
-    if current_group == 'rb':
+    if current_group == Groups.RB.value:
         dates_kp = filter_rb(dates)
-    if current_group == 'kb':
+    if current_group == Groups.KB.value:
         dates_kp = filter_kb(dates)
-    if current_group == 'gb':
+    if current_group == Groups.GB.value:
         dates_kp = filter_gb(dates)
-    if current_group == 'jf':
+    if current_group == Groups.JF.value:
         dates_kp = filter_jf(dates)
 
     with open('pdf/outputrows.tex', 'w') as output_file:
@@ -209,12 +215,12 @@ if __name__ == '__main__':
     version = '0.3'
     currentdate = date.today().strftime('%d.%m.%Y')
 
-    generate_pdf('jf','Jahresprogramm JF','Jugendfeuerwehr','0.3', currentdate, 'Jahresprogramm_JF_'+version)
-    generate_pdf('rb', 'Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', '0.3', currentdate,
+    generate_pdf(Groups.JF.value,'Jahresprogramm JF','Jugendfeuerwehr','0.3', currentdate, 'Jahresprogramm_JF_'+version)
+    generate_pdf(Groups.RB.value, 'Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', '0.3', currentdate,
                  'Jahresprogramm_RB_'+version)
-    generate_pdf('kb', 'Jahresprogramm KB', 'Feuerwehr Kleinbasel', '0.3', currentdate,
+    generate_pdf(Groups.KB.value, 'Jahresprogramm KB', 'Feuerwehr Kleinbasel', '0.3', currentdate,
                  'Jahresprogramm_KB_'+version)
-    generate_pdf('gb', 'Jahresprogramm GB', 'Feuerwehr Grossbasel', '0.3', currentdate,
+    generate_pdf(Groups.GB.value, 'Jahresprogramm GB', 'Feuerwehr Grossbasel', '0.3', currentdate,
                  'Jahresprogramm_GB_'+version)
 
 
