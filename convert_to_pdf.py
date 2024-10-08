@@ -1,10 +1,10 @@
 import math
 import os
 import shutil
-from datetime import date
+from datetime import date, datetime, timedelta
 
 from convert_output import convert_output
-from date_utils import convert_to_date, get_weekday_name, get_saturdays_of_year
+from date_utils import convert_to_date, get_weekday_name, get_saturdays_of_year, convert_to_day_of_year
 from new_enumerator import NewEnumerator
 from row_names import RowNames, Groups
 from scheduler_config import SchedulerData
@@ -166,52 +166,56 @@ def translate_name(name, enumerator, current_group):
 def filter_rb(dates):
     return dates[
         (dates[RowNames.RB.value]) | (dates[RowNames.TYPE.value] == 'ST') | (dates[RowNames.TYPE.value] == 'MS') | (
-                    dates[RowNames.TYPE.value] == 'ASIKVK') | (dates[RowNames.TYPE.value] == 'ASSITST') | (
-                    dates[RowNames.TYPE.value] == 'ASIKONT') | (dates[RowNames.TYPE.value] == 'KS') | (
-                    dates[RowNames.TYPE.value] == 'B') | (dates[RowNames.TYPE.value] == 'IFA')]
+                dates[RowNames.TYPE.value] == 'ASIKVK') | (dates[RowNames.TYPE.value] == 'ASSITST') | (
+                dates[RowNames.TYPE.value] == 'ASIKONT') | (dates[RowNames.TYPE.value] == 'KS') | (
+                dates[RowNames.TYPE.value] == 'B') | (dates[RowNames.TYPE.value] == 'IFA')]
 
 
 def filter_kb(dates):
     return dates[
         (dates[RowNames.KB.value]) | (dates[RowNames.TYPE.value] == 'ST') | (dates[RowNames.TYPE.value] == 'MS') | (
-                    dates[RowNames.TYPE.value] == 'ASIKVK') | (dates[RowNames.TYPE.value] == 'ASSITST') | (
-                    dates[RowNames.TYPE.value] == 'ASIKONT') | (dates[RowNames.TYPE.value] == 'KS') | (
-                    dates[RowNames.TYPE.value] == 'B') | (dates[RowNames.TYPE.value] == 'IFA')]
+                dates[RowNames.TYPE.value] == 'ASIKVK') | (dates[RowNames.TYPE.value] == 'ASSITST') | (
+                dates[RowNames.TYPE.value] == 'ASIKONT') | (dates[RowNames.TYPE.value] == 'KS') | (
+                dates[RowNames.TYPE.value] == 'B') | (dates[RowNames.TYPE.value] == 'IFA')]
 
 
 def filter_gb(dates):
     return dates[
         (dates[RowNames.GB.value]) | (dates[RowNames.TYPE.value] == 'ST') | (dates[RowNames.TYPE.value] == 'MS') | (
-                    dates[RowNames.TYPE.value] == 'ASIKVK') | (dates[RowNames.TYPE.value] == 'ASSITST') | (
-                    dates[RowNames.TYPE.value] == 'ASIKONT') | (dates[RowNames.TYPE.value] == 'KS') | (
-                    dates[RowNames.TYPE.value] == 'B') | (dates[RowNames.TYPE.value] == 'IFA')]
+                dates[RowNames.TYPE.value] == 'ASIKVK') | (dates[RowNames.TYPE.value] == 'ASSITST') | (
+                dates[RowNames.TYPE.value] == 'ASIKONT') | (dates[RowNames.TYPE.value] == 'KS') | (
+                dates[RowNames.TYPE.value] == 'B') | (dates[RowNames.TYPE.value] == 'IFA')]
 
 
 def filter_jf(dates):
     return dates[(dates[RowNames.TYPE.value] == 'J')]
 
 
-def generate_tex(current_group, data):
+def filter_dates(current_group, data):
     dates_kp = {}
-    if current_group == Groups.RB.value:
+    if current_group == Groups.RB:
         dates_kp = filter_rb(data)
-    if current_group == Groups.KB.value:
+    if current_group == Groups.KB:
         dates_kp = filter_kb(data)
-    if current_group == Groups.GB.value:
+    if current_group == Groups.GB:
         dates_kp = filter_gb(data)
-    if current_group == Groups.JF.value:
+    if current_group == Groups.JF:
         dates_kp = filter_jf(data)
+    return dates_kp
 
+
+def generate_tex(data):
     with open('pdf/outputrows.tex', 'w') as output_file:
         i = 1
-        for index, row in dates_kp.iterrows():
+        for index, row in data.iterrows():
             tmp = generate_row(row, i)
             output_file.writelines(translate_umlauts(tmp))
             i += 1
 
 
-def generate_pdf(group, title, displaytitle, version, date, filename, data):
-    generate_tex(group, data)
+def generate_pdf(title, displaytitle, version, date, filename, data):
+    print('Generating {}'.format(title))
+    generate_tex(data)
     with open('pdf/Jahresprogramm_tmpl.tex', 'r') as template:
         with open('pdf/Jahresprogramm.tex', 'w') as output:
             for line in template:
@@ -221,12 +225,12 @@ def generate_pdf(group, title, displaytitle, version, date, filename, data):
                 line = line.replace('$date', date)
                 output.write(line)
 
-    cline = 'cd pdf && lualatex.exe -synctex=1 -interaction=nonstopmode Jahresprogramm.tex'
+    cline = 'cd pdf && lualatex.exe -synctex=1 -interaction=nonstopmode Jahresprogramm.tex >> Jahresprogramm.gen.log'
     if os.system(str(cline)):
         raise RuntimeError('program {} failed!'.format(str(cline)))
 
     shutil.copy('pdf/Jahresprogramm.pdf', 'pdf/' + filename + '.pdf')
-    print('pdf/' + filename + ".pdf")
+    print('saved to pdf/{}.pdf'.format(filename))
 
 
 def enumerate_names(data):
@@ -242,6 +246,124 @@ def enumerate_names(data):
             data.at[index, RowNames.NAME.value] = row[RowNames.NAME.value] + ' ' + str(nr)
 
 
+def load_cal_head():
+    with open('pdf/cal_head.tex', 'r') as file:
+        return file.read()
+
+
+def load_cal_tmpl():
+    with open('pdf/cal_tmpl.tex', 'r') as file:
+        return file.read()
+
+
+def load_cal_subhead():
+    with open('pdf/cal_subhead.tex', 'r') as file:
+        return file.read()
+
+
+def load_cal_row():
+    with open('pdf/cal_row.tex', 'r') as file:
+        return file.read()
+
+
+def set_cal_day(row, day_index, day_nr, day_info, line_1, line_2, line_3):
+    row = row.replace('$' + str(day_index) + 'dayNr', str(day_nr))
+    row = row.replace('$' + str(day_index) + 'dayInfo', translate_umlauts(day_info))
+    row = row.replace('$' + str(day_index) + 'line1', translate_umlauts(line_1))
+    row = row.replace('$' + str(day_index) + 'line2', translate_umlauts(line_2))
+    row = row.replace('$' + str(day_index) + 'line3', translate_umlauts(line_3))
+    return row
+
+
+def generate_cal(data, year, filename, title, displaytitle, date, version):
+    print('Generating {}'.format(title))
+
+    month_names = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober',
+                   'November', 'Dezember']
+    tmp_date = datetime(year, 1, 1)
+    day_index = tmp_date.weekday() + 1
+    month = 0
+    month_indexes = []
+    output = ''
+    row_index = 2
+
+    row = load_cal_row()
+    for i in range(1, day_index):
+        row = set_cal_day(row, i, ' ', ' ', ' ', ' ', ' ')
+
+    for i in range(0, 365):
+        events_on_day = data[data[RowNames.DATE.value] == convert_to_day_of_year(tmp_date)]
+        event_names = []
+        for j in range(0, 3):
+            if j < len(events_on_day):
+                base_name = events_on_day.iloc[j]['name']
+                gb = events_on_day.iloc[j]['gb']
+                kb = events_on_day.iloc[j]['kb']
+                rb = events_on_day.iloc[j]['rb']
+                jf = events_on_day.iloc[j]['type'] == 'J'
+                if gb or kb or rb or jf:
+                    base_name = base_name + ' ['
+                    name_addition = ''
+                    if gb:
+                        name_addition = name_addition + 'GB'
+                    if gb and (kb or rb or jf):
+                        name_addition = name_addition + ', '
+                    if kb:
+                        name_addition = name_addition + 'KB'
+                    if kb and (rb or jf):
+                        name_addition = name_addition + ', '
+                    if rb:
+                        name_addition = name_addition + 'RB'
+                    if rb and jf:
+                        name_addition = name_addition + ', '
+                    if jf:
+                        name_addition = name_addition + 'JF'
+                    name_addition = name_addition + ']'
+                    base_name = base_name + name_addition
+                event_names.append(base_name)
+            else:
+                event_names.append(' ')
+        row = set_cal_day(row, day_index, tmp_date.day, '', event_names[0], event_names[1], event_names[2])
+
+        if day_index == 7:
+            if tmp_date.month != month:
+                month = tmp_date.month
+                output = output + load_cal_subhead().replace('$month', translate_umlauts(month_names[month - 1]))
+                month_indexes.append(row_index)
+                row_index = row_index + 1
+
+            output = output + row
+            row_index = row_index + 1
+            row = load_cal_row()
+            day_index = 0
+
+        day_index = day_index + 1
+        tmp_date = tmp_date + timedelta(days=1)
+
+    for i in range(day_index, 8):
+        row = set_cal_day(row, i, ' ', ' ', ' ', ' ', ' ')
+    output = output + row
+    row_index = row_index + 1
+
+    head = load_cal_head().replace('$head_nr', ','.join(map(str, month_indexes)))
+    output = head + output
+
+    output = load_cal_tmpl().replace('$cal_data', output)
+    output = output.replace('$title', translate_umlauts(title))
+    output = output.replace('$displaytitle', translate_umlauts(displaytitle))
+    output = output.replace('$version', version)
+    output = output.replace('$date', translate_umlauts(date))
+
+    with open('pdf/Jahreskalender.tex', 'w') as cal_out:
+        cal_out.write(output)
+    cline = 'cd pdf && lualatex.exe -synctex=1 -interaction=nonstopmode Jahreskalender.tex >> Jahreskalender.gen.log'
+    if os.system(str(cline)):
+        raise RuntimeError('program {} failed!'.format(str(cline)))
+
+    shutil.copy('pdf/Jahreskalender.pdf', 'pdf/' + filename + '.pdf')
+    print('saved to pdf/{}.pdf'.format(filename))
+
+
 if __name__ == '__main__':
     version = '0.3'
     data = SchedulerData.create_from('input/dates_combined_u.xlsx').dates
@@ -250,15 +372,33 @@ if __name__ == '__main__':
 
     enumerate_names(data)
 
-    convert_output(data, 'pdf/Jahresprogramm_komplett_' + version + '.xlsx', 2025)
-
     currentdate = date.today().strftime('%d.%m.%Y')
 
-    generate_pdf(Groups.JF.value, 'Jahresprogramm JF', 'Jugendfeuerwehr', '0.3', currentdate,
-                 'Jahresprogramm_JF_' + version, data)
-    generate_pdf(Groups.RB.value, 'Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', '0.3', currentdate,
-                 'Jahresprogramm_RB_' + version, data)
-    generate_pdf(Groups.KB.value, 'Jahresprogramm KB', 'Feuerwehr Kleinbasel', '0.3', currentdate,
-                 'Jahresprogramm_KB_' + version, data)
-    generate_pdf(Groups.GB.value, 'Jahresprogramm GB', 'Feuerwehr Grossbasel', '0.3', currentdate,
-                 'Jahresprogramm_GB_' + version, data)
+    convert_output(data, 'pdf/Jahresprogramm_komplett_' + version + '.xlsx', 2025)
+
+    generate_cal(data, 2025, 'Jahreskalender_komplett', 'Milizfeuerwehr Basel-Stadt Jahreskalender 2025',
+                 'Milizfeuerwehr Basel-Stadt', currentdate, version)
+
+    data_kp = filter_dates(Groups.JF, data)
+    generate_pdf('Jahresprogramm JF', 'Jugendfeuerwehr', '0.3', currentdate,
+                 'Jahresprogramm_JF_' + version, data_kp)
+    generate_cal(data_kp, 2025, 'Jahreskalender_JF' + version, 'Jugendfeuerwehr Jahreskalender 2025',
+                 'Jugendfeuerwehr', currentdate, version)
+
+    data_kp = filter_dates(Groups.RB, data)
+    generate_pdf('Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', '0.3', currentdate,
+                 'Jahresprogramm_RB_' + version, data_kp)
+    generate_cal(data_kp, 2025, 'Jahreskalender_RB' + version, 'Feuerwehr Riehen-Bettingen Jahreskalender 2025',
+                 'Feuerwehr Riehen-Bettingen', currentdate, version)
+
+    data_kp = filter_dates(Groups.KB, data)
+    generate_pdf('Jahresprogramm KB', 'Feuerwehr Kleinbasel', '0.3', currentdate,
+                 'Jahresprogramm_KB_' + version, data_kp)
+    generate_cal(data_kp, 2025, 'Jahreskalender_KB' + version, 'Feuerwehr Kleinbasel Jahreskalender 2025',
+                 'Feuerwehr Kleinbasel', currentdate, version)
+
+    data_kp = filter_dates(Groups.GB, data)
+    generate_pdf('Jahresprogramm GB', 'Feuerwehr Grossbasel', '0.3', currentdate,
+                 'Jahresprogramm_GB_' + version, data_kp)
+    generate_cal(data_kp, 2025, 'Jahreskalender_GB' + version, 'Feuerwehr Grossbasel Jahreskalender 2025',
+                 'Feuerwehr Grossbasel', currentdate, version)
