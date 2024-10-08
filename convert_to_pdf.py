@@ -1,7 +1,11 @@
+import codecs
 import math
 import os
 import shutil
 from datetime import date, datetime, timedelta
+
+import pandas as pd
+from ics import Calendar, Event
 
 from convert_output import convert_output
 from date_utils import convert_to_date, get_weekday_name, get_saturdays_of_year, convert_to_day_of_year
@@ -229,8 +233,8 @@ def generate_pdf(title, displaytitle, version, date, filename, data):
     if os.system(str(cline)):
         raise RuntimeError('program {} failed!'.format(str(cline)))
 
-    shutil.copy('pdf/Jahresprogramm.pdf', 'pdf/' + filename + '.pdf')
-    print('saved to pdf/{}.pdf'.format(filename))
+    shutil.move('pdf/Jahresprogramm.pdf', 'pdf/' + filename)
+    print('saved to pdf/{}'.format(filename))
 
 
 def enumerate_names(data):
@@ -275,7 +279,19 @@ def set_cal_day(row, day_index, day_nr, day_info, line_1, line_2, line_3):
     return row
 
 
-def generate_cal(data, year, filename, title, displaytitle, date, version):
+def get_day_description(date, holidays, additional_days):
+    additional_day = additional_days.loc[(additional_days['start'] <= date) & (additional_days['end'] >= date)]
+    if len(additional_day)>0:
+        return additional_day.iloc[0]['name']
+
+    holiday = holidays.loc[(holidays['start'] < date) & (holidays['end'] >= date) ]
+    if len(holiday) > 0:
+        return holiday.iloc[0]['name']
+
+    return ''
+
+
+def generate_cal(data, year, filename, title, displaytitle, date, version, holidays, additional_days):
     print('Generating {}'.format(title))
 
     month_names = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober',
@@ -323,7 +339,7 @@ def generate_cal(data, year, filename, title, displaytitle, date, version):
                 event_names.append(base_name)
             else:
                 event_names.append(' ')
-        row = set_cal_day(row, day_index, tmp_date.day, '', event_names[0], event_names[1], event_names[2])
+        row = set_cal_day(row, day_index, tmp_date.day, get_day_description(tmp_date,holidays,additional_days), event_names[0], event_names[1], event_names[2])
 
         if day_index == 7:
             if tmp_date.month != month:
@@ -360,12 +376,68 @@ def generate_cal(data, year, filename, title, displaytitle, date, version):
     if os.system(str(cline)):
         raise RuntimeError('program {} failed!'.format(str(cline)))
 
-    shutil.copy('pdf/Jahreskalender.pdf', 'pdf/' + filename + '.pdf')
-    print('saved to pdf/{}.pdf'.format(filename))
+    shutil.move('pdf/Jahreskalender.pdf', 'pdf/' + filename)
+    print('saved to pdf/{}'.format(filename))
+
+
+
+def get_string(text):
+    if text == None:
+        return ""
+    if isinstance(text, float):
+        if math.isnan(text):
+            return ""
+        text = str(text)
+    if isinstance(text, int):
+        text = str(text)
+    return text
+
+
+
+def generate_description(row, version):
+    description = ''
+    called_up = get_string(row[RowNames.CALLED_UP.value])
+    if called_up != '':
+        description += 'Aufgebot: ' + called_up + '\n'
+
+    responsible = get_string(row[RowNames.RESPONSIBLE.value])
+    if responsible != '':
+        description += 'Verantwortlich: ' + responsible + '\n'
+
+    if get_string(row[RowNames.THEME.value]) != '':
+        description += 'Thema: ' + get_string(row[RowNames.THEME.value]) + '\n'
+
+    if get_string(row[RowNames.DETAILS.value]) != '':
+        description += 'Beschreibung: ' + get_string(row[RowNames.DETAILS.value]) + '\n'
+
+    description += 'Version: ' + version
+    return description
+
+
+def generate_ics(data, year, filename, version):
+    calendar = Calendar()
+
+    for index, row in data.iterrows():
+        event = Event()
+        event.name = row[RowNames.NAME.value]
+        event.description = generate_description(row, version)
+        times = row[RowNames.TIME.value].split('-')
+        times = [x.strip() for x in times]
+
+        if(len(times) == 2):
+            convert_to_date(row[RowNames.DATE.value],year)
+            event.begin = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + times[0] + ':00'
+            event.end = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + times[1] + ':00'
+        else:
+            event.begin = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + '00:00:00'
+        calendar.events.add(event)
+
+    with codecs.open('pdf/'+filename, 'w','utf-8') as file:
+        file.writelines(calendar.serialize_iter())
 
 
 if __name__ == '__main__':
-    version = '0.3'
+    version = '0.4'
     data = SchedulerData.create_from('input/dates_combined_u.xlsx').dates
     data.sort_values(by=RowNames.DATE.value, inplace=True)
     data = data[data[RowNames.INCLUDE.value] == True]
@@ -374,31 +446,63 @@ if __name__ == '__main__':
 
     currentdate = date.today().strftime('%d.%m.%Y')
 
-    convert_output(data, 'pdf/Jahresprogramm_komplett_' + version + '.xlsx', 2025)
+    holidays = pd.read_excel('input/holidays.xlsx')
+    additional_days = pd.read_excel('input/additional_days.xlsx')
 
-    generate_cal(data, 2025, 'Jahreskalender_komplett', 'Milizfeuerwehr Basel-Stadt Jahreskalender 2025',
-                 'Milizfeuerwehr Basel-Stadt', currentdate, version)
+    outputfiles = ['Jahresprogramm_komplett_' + version + '.xlsx']
+    convert_output(data, 'pdf/'+outputfiles[-1], 2025)
+
+    outputfiles.append('Jahreskalender_komplett_'+ version + '.pdf')
+    generate_cal(data, 2025, outputfiles[-1], 'Milizfeuerwehr Basel-Stadt Jahreskalender 2025',
+                 'Milizfeuerwehr Basel-Stadt', currentdate, version,holidays,additional_days)
+
+    outputfiles.append('Jahresprogramm_komplett_' + version + '.ics')
+    generate_ics(data, 2025, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.JF, data)
+    outputfiles.append('Jahresprogramm_JF_' + version + '.pdf')
     generate_pdf('Jahresprogramm JF', 'Jugendfeuerwehr', '0.3', currentdate,
-                 'Jahresprogramm_JF_' + version, data_kp)
-    generate_cal(data_kp, 2025, 'Jahreskalender_JF' + version, 'Jugendfeuerwehr Jahreskalender 2025',
-                 'Jugendfeuerwehr', currentdate, version)
+                 outputfiles[-1], data_kp)
+    outputfiles.append('Jahreskalender_JF_' + version + '.pdf')
+    generate_cal(data_kp, 2025, outputfiles[-1], 'Jugendfeuerwehr Jahreskalender 2025',
+                 'Jugendfeuerwehr', currentdate, version,holidays,additional_days)
+    outputfiles.append('Jahresprogramm_JF_' + version + '.ics')
+    generate_ics(data, 2025, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.RB, data)
+    outputfiles.append('Jahresprogramm_RB_' + version + '.pdf')
     generate_pdf('Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', '0.3', currentdate,
-                 'Jahresprogramm_RB_' + version, data_kp)
-    generate_cal(data_kp, 2025, 'Jahreskalender_RB' + version, 'Feuerwehr Riehen-Bettingen Jahreskalender 2025',
-                 'Feuerwehr Riehen-Bettingen', currentdate, version)
+                 outputfiles[-1], data_kp)
+    outputfiles.append('Jahreskalender_RB_' + version + '.pdf')
+    generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Riehen-Bettingen Jahreskalender 2025',
+                 'Feuerwehr Riehen-Bettingen', currentdate, version,holidays,additional_days)
+    outputfiles.append('Jahresprogramm_RB_' + version + '.ics')
+    generate_ics(data, 2025, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.KB, data)
+    outputfiles.append('Jahresprogramm_KB_' + version + '.pdf')
     generate_pdf('Jahresprogramm KB', 'Feuerwehr Kleinbasel', '0.3', currentdate,
-                 'Jahresprogramm_KB_' + version, data_kp)
-    generate_cal(data_kp, 2025, 'Jahreskalender_KB' + version, 'Feuerwehr Kleinbasel Jahreskalender 2025',
-                 'Feuerwehr Kleinbasel', currentdate, version)
+                 outputfiles[-1], data_kp)
+    outputfiles.append('Jahreskalender_KB_' + version + '.pdf')
+    generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Kleinbasel Jahreskalender 2025',
+                 'Feuerwehr Kleinbasel', currentdate, version,holidays,additional_days)
+    outputfiles.append('Jahresprogramm_KB_' + version + '.ics')
+    generate_ics(data, 2025, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.GB, data)
+    outputfiles.append('Jahresprogramm_GB_' + version + '.pdf')
     generate_pdf('Jahresprogramm GB', 'Feuerwehr Grossbasel', '0.3', currentdate,
-                 'Jahresprogramm_GB_' + version, data_kp)
-    generate_cal(data_kp, 2025, 'Jahreskalender_GB' + version, 'Feuerwehr Grossbasel Jahreskalender 2025',
-                 'Feuerwehr Grossbasel', currentdate, version)
+                 outputfiles[-1], data_kp)
+    outputfiles.append('Jahreskalender_GB_' + version + '.pdf')
+    generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Grossbasel Jahreskalender 2025',
+                 'Feuerwehr Grossbasel', currentdate, version,holidays,additional_days)
+    outputfiles.append('Jahresprogramm_GB_' + version + '.ics')
+    generate_ics(data, 2025, outputfiles[-1], version)
+
+    shutil.rmtree('pdf/Jahresprogramm/', ignore_errors=True)
+    shutil.rmtree('output/Jahresprogramm/', ignore_errors=True)
+    os.mkdir('pdf/Jahresprogramm')
+    for f in outputfiles:
+        shutil.move('pdf/' + f, 'pdf/Jahresprogramm/')
+    shutil.move('pdf/Jahresprogramm/', 'output/')
+

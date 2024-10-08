@@ -2,8 +2,10 @@ Briefkopfbild.png
 LogoMiliz.jpg
 outputrows.tex
 Jahresprogramm.tex
+Jahreskalender.tex
 *.log
 *.pdf
 *.aux
 *.synctex.gz
 *.xlsx
+*.ics
