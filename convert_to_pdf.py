@@ -426,10 +426,11 @@ def generate_ics(data, year, filename, version):
 
         if(len(times) == 2):
             convert_to_date(row[RowNames.DATE.value],year)
-            event.begin = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + times[0] + ':00'
-            event.end = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + times[1] + ':00'
+            event.begin = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + times[0] + ':00+01:00'
+            event.end = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + times[1] + ':00+01:00'
         else:
-            event.begin = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + '00:00:00'
+            event.begin = (convert_to_date(row[RowNames.DATE.value], year)).strftime('%Y-%m-%d')
+            event.make_all_day()
         calendar.events.add(event)
 
     with codecs.open('pdf/'+filename, 'w','utf-8') as file:
