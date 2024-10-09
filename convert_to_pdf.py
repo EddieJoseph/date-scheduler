@@ -468,7 +468,7 @@ if __name__ == '__main__':
     generate_cal(data_kp, 2025, outputfiles[-1], 'Jugendfeuerwehr Jahreskalender 2025',
                  'Jugendfeuerwehr', currentdate, version,holidays,additional_days)
     outputfiles.append('Jahresprogramm_JF_' + version + '.ics')
-    generate_ics(data, 2025, outputfiles[-1], version)
+    generate_ics(data_kp, 2025, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.RB, data)
     outputfiles.append('Jahresprogramm_RB_' + version + '.pdf')
@@ -478,7 +478,7 @@ if __name__ == '__main__':
     generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Riehen-Bettingen Jahreskalender 2025',
                  'Feuerwehr Riehen-Bettingen', currentdate, version,holidays,additional_days)
     outputfiles.append('Jahresprogramm_RB_' + version + '.ics')
-    generate_ics(data, 2025, outputfiles[-1], version)
+    generate_ics(data_kp, 2025, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.KB, data)
     outputfiles.append('Jahresprogramm_KB_' + version + '.pdf')
@@ -488,7 +488,7 @@ if __name__ == '__main__':
     generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Kleinbasel Jahreskalender 2025',
                  'Feuerwehr Kleinbasel', currentdate, version,holidays,additional_days)
     outputfiles.append('Jahresprogramm_KB_' + version + '.ics')
-    generate_ics(data, 2025, outputfiles[-1], version)
+    generate_ics(data_kp, 2025, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.GB, data)
     outputfiles.append('Jahresprogramm_GB_' + version + '.pdf')
@@ -498,7 +498,7 @@ if __name__ == '__main__':
     generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Grossbasel Jahreskalender 2025',
                  'Feuerwehr Grossbasel', currentdate, version,holidays,additional_days)
     outputfiles.append('Jahresprogramm_GB_' + version + '.ics')
-    generate_ics(data, 2025, outputfiles[-1], version)
+    generate_ics(data_kp, 2025, outputfiles[-1], version)
 
     shutil.rmtree('pdf/Jahresprogramm/', ignore_errors=True)
     shutil.rmtree('output/Jahresprogramm/', ignore_errors=True)
@@ -507,3 +507,10 @@ if __name__ == '__main__':
         shutil.move('pdf/' + f, 'pdf/Jahresprogramm/')
     shutil.move('pdf/Jahresprogramm/', 'output/')
 
+    tmp_files = ['outputrows.tex', 'Jahreskalender.aux', 'Jahreskalender.gen.log', 'Jahreskalender.log', 'Jahreskalender.synctex.gz', 'Jahreskalender.tex', 'Jahresprogramm.aux', 'Jahresprogramm.gen.log', 'Jahresprogramm.log', 'Jahresprogramm.synctex.gz', 'Jahresprogramm.tex']
+
+    for f in tmp_files:
+        try:
+            os.remove('pdf/' + f)
+        except:
+            pass
