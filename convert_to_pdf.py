@@ -421,6 +421,7 @@ def generate_ics(data, year, filename, version):
         event = Event()
         event.name = row[RowNames.NAME.value]
         event.description = generate_description(row, version)
+        event.uid = row[RowNames.ID.value]
         times = row[RowNames.TIME.value].split('-')
         times = [x.strip() for x in times]
 
