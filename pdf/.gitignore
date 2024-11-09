@@ -3,6 +3,7 @@ LogoMiliz.jpg
 outputrows.tex
 Jahresprogramm.tex
 Jahreskalender.tex
+addition.tex
 *.log
 *.pdf
 *.aux
