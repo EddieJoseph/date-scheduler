@@ -439,8 +439,9 @@ def generate_ics(data, year, filename, version):
 
 
 if __name__ == '__main__':
-    version = '0.4'
-    data = SchedulerData.create_from('input/dates_combined_u.xlsx').dates
+    version = '1.1'
+    old_versions = ['1.0']
+    data = SchedulerData.create_from('input/dates_combined_'+version+'.xlsx').dates
     data.sort_values(by=RowNames.DATE.value, inplace=True)
     data = data[data[RowNames.INCLUDE.value] == True]
 
@@ -463,7 +464,7 @@ if __name__ == '__main__':
 
     data_kp = filter_dates(Groups.JF, data)
     outputfiles.append('Jahresprogramm_JF_' + version + '.pdf')
-    generate_pdf('Jahresprogramm JF', 'Jugendfeuerwehr', '0.3', currentdate,
+    generate_pdf('Jahresprogramm JF', 'Jugendfeuerwehr', version, currentdate,
                  outputfiles[-1], data_kp)
     outputfiles.append('Jahreskalender_JF_' + version + '.pdf')
     generate_cal(data_kp, 2025, outputfiles[-1], 'Jugendfeuerwehr Jahreskalender 2025',
@@ -473,7 +474,7 @@ if __name__ == '__main__':
 
     data_kp = filter_dates(Groups.RB, data)
     outputfiles.append('Jahresprogramm_RB_' + version + '.pdf')
-    generate_pdf('Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', '0.3', currentdate,
+    generate_pdf('Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', version, currentdate,
                  outputfiles[-1], data_kp)
     outputfiles.append('Jahreskalender_RB_' + version + '.pdf')
     generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Riehen-Bettingen Jahreskalender 2025',
@@ -483,7 +484,7 @@ if __name__ == '__main__':
 
     data_kp = filter_dates(Groups.KB, data)
     outputfiles.append('Jahresprogramm_KB_' + version + '.pdf')
-    generate_pdf('Jahresprogramm KB', 'Feuerwehr Kleinbasel', '0.3', currentdate,
+    generate_pdf('Jahresprogramm KB', 'Feuerwehr Kleinbasel', version, currentdate,
                  outputfiles[-1], data_kp)
     outputfiles.append('Jahreskalender_KB_' + version + '.pdf')
     generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Kleinbasel Jahreskalender 2025',
@@ -493,7 +494,7 @@ if __name__ == '__main__':
 
     data_kp = filter_dates(Groups.GB, data)
     outputfiles.append('Jahresprogramm_GB_' + version + '.pdf')
-    generate_pdf('Jahresprogramm GB', 'Feuerwehr Grossbasel', '0.3', currentdate,
+    generate_pdf('Jahresprogramm GB', 'Feuerwehr Grossbasel', version, currentdate,
                  outputfiles[-1], data_kp)
     outputfiles.append('Jahreskalender_GB_' + version + '.pdf')
     generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Grossbasel Jahreskalender 2025',
