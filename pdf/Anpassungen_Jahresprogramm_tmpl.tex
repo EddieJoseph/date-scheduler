@@ -23,47 +23,38 @@ right=5mm
 \fancyhead[ER, OR]{}
 %\fancyhead[OR, ER]{\thepage}
 %\fancyhead[EL, OL]{
-%	\begin{tabular}[b]{l}
-%		Beispielezu\texttt{fancyhdr}\\
-%		HansFriedrichSteffani\\
-%		LehrstuhlElektr.Masch.u.Antriebe
-%	\end{tabular}
-%	\includegraphics[height=3\baselineskip]{example-image-a}
-%}
+	%	\begin{tabular}[b]{l}
+		%		Beispielezu\texttt{fancyhdr}\\
+		%		HansFriedrichSteffani\\
+		%		LehrstuhlElektr.Masch.u.Antriebe
+		%	\end{tabular}
+	%	\includegraphics[height=3\baselineskip]{example-image-a}
+	%}
 \fancyhead[EL, OL]{
 	\includegraphics[height=2.7cm]{Briefkopfbild}
 	\begin{tabular}[b]{l}
 		\scriptsize{Justiz- und Sicherheitsdepartement des Kantons Basel-Stadt}\vspace{5pt}\\
 		\textbf{Rettung}\vspace{11pt}
 	\end{tabular}\\
-%	\begin{tabular}[b]{l}
-%		\qquad \scriptsize{Feuerwehr}\\
-%		\qquad  \scriptsize{\textbf{Milizfeuerwehr}}
-%	\end{tabular}
+	%	\begin{tabular}[b]{l}
+		%		\qquad \scriptsize{Feuerwehr}\\
+		%		\qquad  \scriptsize{\textbf{Milizfeuerwehr}}
+		%	\end{tabular}
 	\begin{tabular}[b]{l}
 		\hspace{8mm} \(\vartriangleright\) \scriptsize{Feuerwehr}\\
 		\hspace{8mm} \(\blacktriangleright\) \scriptsize{\textbf{Milizfeuerwehr}}
 	\end{tabular}
 }
 \fancyfoot[ER, OR]{
-\scriptsize{Version $version ($date)}
+	\scriptsize{Version $version ($date)}
 }
 \fancyfoot[EC, OC]{\scriptsize{ Seite \thepage}}
 
-
-
 \addtolength{\headheight}{2.6cm}
-
-
-
-
-
-
-
 
 \usepackage[T1]{fontenc}
 \usepackage[]{mdframed}
-\title{$title}
+\title{Änderungen Jahresprogramm}
 \author{Ausbildungsteam Milizfeuerwehr Basel-Stadt}
 \renewcommand{\familydefault}{\sfdefault}
 \usepackage{helvet}
@@ -90,8 +81,8 @@ right=5mm
 	leftmargin = 0pt,
 	rightmargin = 0pt,
 	backgroundcolor=titleBg
-	}
-	
+}
+
 \mdfdefinestyle{messageframe}{%
 	linecolor=messageBorder,
 	outerlinewidth=2pt,
@@ -105,46 +96,13 @@ right=5mm
 }
 
 \begin{document}
+	\begin{adjustwidth}{1.5cm}{1.5cm}
 
-	\begin{mdframed}[style=titleframe, nobreak=true]
-			\textbf{$displaytitle} \qquad \qquad Jahresprogramm 2025
-	\end{mdframed}
+	\section*{Änderungen Jahresprogramm}
+	Zusammengefasste Änderungen am Jahresprogramm aller Kompanien.
 
-	\DefTblrTemplate{contfoot-text}{default}{}
-	\DefTblrTemplate{conthead-text}{default}{}
-	
-\footnotesize
-\begin{longtblr}[
-	label = none,
-	entry = none,
-	evaluate=\fileInput,
-	]{
-		row{1} = {tableHeaderBg},
-		hlines,
-		vlines,
-		rowhead = 1
-	}
-	\textbf{Nr.} & \textbf{Datum} & \textbf{Zeit} & \textbf{Tag} & \textbf{Kurs} & \textbf{Aufgebot für} & \textbf{Art / Thema} & \textbf{Verantwortlich}\\
-	\fileInput{outputrows.tex}
-\end{longtblr}
+    $change_table
 
+\end{adjustwidth}
 
-\newcommand\blfootnote[1]{%
-	\begingroup
-	\renewcommand\thefootnote{}\footnote{#1}%
-	\addtocounter{footnote}{-1}%
-	\endgroup
-}
-
-\begin{mdframed}[style=messageframe, nobreak=true]
-	\center
-	\textbf{Das Jehresprogramm gilt als Aufgebot!} 
-\end{mdframed}
-
-
-
-	
-%\blfootnote{Version 3 (6.8.2024)}
-\include{addition}
-	
 \end{document}

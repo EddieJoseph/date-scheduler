@@ -1,6 +1,7 @@
 import os
 import shutil
 
+from change_table_generation import generate_change_table_tex
 from file_generation_utils import translate_umlauts
 from date_utils import convert_to_date, get_weekday_name
 from row_names import RowNames
@@ -14,8 +15,16 @@ def generate_tex(data):
             output_file.writelines(translate_umlauts(tmp))
             i += 1
 
+def load_addition():
+    with open('pdf/addition_tmpl.tex', 'r') as file:
+        return file.read()
+def generate_addition_tex(data, version, old_data, old_versions):
+    addition = load_addition()
+    addition = addition.replace('$change_table', generate_change_table_tex(data, version, old_data, old_versions))
+    with open('pdf/addition.tex', 'w') as output_file:
+        output_file.write(addition)
 
-def generate_pdf(title, displaytitle, version, date, filename, data):
+def generate_pdf(title, displaytitle, version, date, filename, data, old_data, old_versions):
     print('Generating {}'.format(title))
     generate_tex(data)
     with open('pdf/Jahresprogramm_tmpl.tex', 'r') as template:
@@ -26,6 +35,8 @@ def generate_pdf(title, displaytitle, version, date, filename, data):
                 line = line.replace('$version', version)
                 line = line.replace('$date', date)
                 output.write(line)
+
+    generate_addition_tex(data, version, old_data, old_versions)
 
     cline = 'cd pdf && lualatex.exe -synctex=1 -interaction=nonstopmode Jahresprogramm.tex >> Jahresprogramm.gen.log'
     if os.system(str(cline)):

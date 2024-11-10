@@ -1,4 +1,5 @@
 import math
+import re
 
 from new_enumerator import NewEnumerator
 from row_names import RowNames, Groups
@@ -62,6 +63,12 @@ def filter_dates(current_group, data):
     if current_group == Groups.JF:
         dates_kp = filter_jf(data)
     return dates_kp
+
+def remove_numbers_at_end(input_string):
+    match = re.match(r'(.+?)\s+\d+$', input_string)
+    if match:
+        return match.group(1)
+    return input_string
 
 
 def enumerate_names(data):
