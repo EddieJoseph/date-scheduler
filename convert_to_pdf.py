@@ -16,8 +16,8 @@ from scheduler_config import SchedulerData
 
 
 if __name__ == '__main__':
-    version = '1.2'
-    old_versions = ['1.1', '1.0']
+    version = '1.0.1'
+    old_versions = ['1.0']
 
     data = SchedulerData.create_from('input/dates_combined_'+version+'.xlsx').dates
     data.sort_values(by=RowNames.DATE.value, inplace=True)
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     generate_ics(data_kp, 2025, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.KB, data)
-    old_data_kp = list(map(lambda old_version: filter_dates(Groups.RB, old_version), old_data))
+    old_data_kp = list(map(lambda old_version: filter_dates(Groups.KB, old_version), old_data))
     outputfiles.append('Jahresprogramm_KB_' + version + '.pdf')
     generate_pdf('Jahresprogramm KB', 'Feuerwehr Kleinbasel', version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     generate_ics(data_kp, 2025, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.GB, data)
-    old_data_kp = list(map(lambda old_version: filter_dates(Groups.RB, old_version), old_data))
+    old_data_kp = list(map(lambda old_version: filter_dates(Groups.GB, old_version), old_data))
     outputfiles.append('Jahresprogramm_GB_' + version + '.pdf')
     generate_pdf('Jahresprogramm GB', 'Feuerwehr Grossbasel', version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
