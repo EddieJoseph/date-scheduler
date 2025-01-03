@@ -12,3 +12,6 @@ class AssiEvaluator(Evaluator):
         violations = len(diffs[diffs < 0])
         return 0.5 ** violations
 
+    def get_name(self) -> str:
+        return "AssiEvaluator"
+

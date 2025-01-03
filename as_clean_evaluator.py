@@ -28,3 +28,6 @@ class AsCleanEvaluator(Evaluator):
         diff = self.get_diff(as_dates)
         tmp = 0.6**len(diff[diff < self.min_days])
         return tmp
+
+    def get_name(self) -> str:
+        return "AsCleanEvaluator"

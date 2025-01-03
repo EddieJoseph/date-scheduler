@@ -22,3 +22,6 @@ class WeekendEvaluator(Evaluator):
 
         tmp = 0.6**(a+b+c)
         return tmp
+
+    def get_name(self) -> str:
+        return "WeekendEvaluator"

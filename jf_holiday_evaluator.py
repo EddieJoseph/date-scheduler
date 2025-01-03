@@ -22,3 +22,6 @@ class JfHolidayEvaluator(Evaluator):
     def evaluate(self, dates: pd.DataFrame) -> float:
         filtered_dates = dates[dates[RowNames.TYPE.value] == 'J']
         return 0.8 ** len(filtered_dates[(filtered_dates[RowNames.DATE.value].isin(self.blocked_dates))])
+
+    def get_name(self) -> str:
+        return "JfHolidayEvaluator"

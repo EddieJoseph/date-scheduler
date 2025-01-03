@@ -33,3 +33,5 @@ class TypeSpreadEvaluator(Evaluator):
                 result = result * (1 / (1 + np.sqrt(days_between.var() / 10000)))
         return result
 
+    def get_name(self) -> str:
+        return "TypeSpreadEvaluator"

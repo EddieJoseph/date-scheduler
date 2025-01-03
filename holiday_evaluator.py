@@ -21,3 +21,6 @@ class HolidayEvaluator(Evaluator):
 
     def evaluate(self, dates: pd.DataFrame) -> float:
         return 0.8 ** len(dates[(dates[RowNames.FIXED.value].isin(self.blocked_dates))])
+
+    def get_name(self) -> str:
+        return "HolidayEvaluator"

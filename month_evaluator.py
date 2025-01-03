@@ -12,3 +12,6 @@ class MonthEvaluator(Evaluator):
         violations = diff.abs().sum()
 
         return 0.85 ** violations
+
+    def get_name(self) -> str:
+        return "MonthEvaluator"

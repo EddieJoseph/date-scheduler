@@ -17,3 +17,6 @@ class WeekClumpingEvaluator(Evaluator):
         weeks = dates[RowNames.DATE.value].apply(self.get_week).value_counts()
         tmp = 0.99**len(weeks[weeks > 2])*0.9**len(weeks[weeks > 3])*0.5**len(weeks[weeks > 5])
         return tmp
+
+    def get_name(self) -> str:
+        return "WeekClumpingEvaluator"

@@ -10,6 +10,9 @@ class Evaluator:
     def evaluate(self, dates:pd.DataFrame) -> float:
         pass
 
+    @abstractmethod
+    def get_name(self) -> str:
+        pass
 
     def get_types(self, dates:pd.DataFrame) -> pd.DataFrame:
         return dates[RowNames.TYPE.value].unique()

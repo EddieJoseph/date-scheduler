@@ -10,3 +10,6 @@ class SameDayEvaluator(Evaluator):
         ex_per_day = dates[RowNames.DATE.value].value_counts()
         ex_per_day_c = len(ex_per_day[ex_per_day > 1])
         return 0.3 ** ex_per_day_c
+
+    def get_name(self) -> str:
+        return "SameDayEvaluator"
