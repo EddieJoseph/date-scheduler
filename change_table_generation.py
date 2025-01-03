@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 
 import pandas as pd
@@ -9,15 +10,21 @@ from file_generation_utils import translate_umlauts, remove_numbers_at_end
 from row_names import RowNames
 
 
-def has_changed(date_1,date_2): #TODO add tex safe comparison of Theme and Responsible
-    return not equals(date_1, date_2, RowNames.DATE) or not equals(date_1, date_2, RowNames.TIME) or not equals(date_1, date_2, RowNames.CALLED_UP) #or not equals(date_1, date_2, RowNames.THEME) or not equals(date_1, date_2, RowNames.RESPONSIBLE)
+def has_changed(date_1,date_2):
+    return not text_equals(date_1, date_2, RowNames.NAME) or not equals(date_1, date_2, RowNames.DATE) or not equals(date_1, date_2, RowNames.TIME) or not equals(date_1, date_2, RowNames.CALLED_UP) or not text_equals(date_1, date_2, RowNames.THEME) or not text_equals(date_1, date_2, RowNames.RESPONSIBLE)
 
 
 def equals(date_1, date_2, row):
     if pd.isna(date_1[row.value]) and pd.isna(date_2[row.value]):
         return True
     return date_1[row.value] == date_2[row.value]
+def text_equals(date_1, date_2, row):
+    if pd.isna(date_1[row.value]) and pd.isna(date_2[row.value]):
+        return True
+    t1 = '' if pd.isna(date_1[row.value]) else remove_numbers_at_end(date_1[row.value])
+    t2 = '' if pd.isna(date_2[row.value]) else remove_numbers_at_end(date_2[row.value])
 
+    return t1 == t2
 
 def new_text_style(text):
     return '\color{OliveGreen}' + text
@@ -96,24 +103,18 @@ def generate_change_table_tex(data, version, old_data, old_versions):
                 e_group = translate_umlauts(event[1][RowNames.CALLED_UP.value])
                 e_theme = translate_umlauts(event[1][RowNames.THEME.value])
                 e_responsible = translate_umlauts(event[1][RowNames.RESPONSIBLE.value])
-                # e_date = ''
-                # e_time = ''
-                # e_name = ''
-                # e_group = ''
-                # e_theme = ''
-                # e_responsible = ''
                 if prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.DATE.value] != event[1][RowNames.DATE.value]:
-                    e_date = old_text_style(convert_to_date(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.DATE.value],2025).strftime('%d.%m.%Y'))+ ' '+new_text_style(convert_to_date(event[1][RowNames.DATE.value], 2025).strftime('%d.%m.%Y'))
+                    e_date = change_text(convert_to_date(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.DATE.value],2025).strftime('%d.%m.%Y'),convert_to_date(event[1][RowNames.DATE.value], 2025).strftime('%d.%m.%Y'))
                 if prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.TIME.value] != event[1][RowNames.TIME.value]:
-                    e_time = old_text_style(translate_umlauts(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.TIME.value]))+ ' '+new_text_style(translate_umlauts(event[1][RowNames.TIME.value]))
+                    e_time = change_text(translate_umlauts(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.TIME.value]), translate_umlauts(event[1][RowNames.TIME.value]))
                 if prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.NAME.value] != remove_numbers_at_end(event[1][RowNames.NAME.value]):
-                    e_name = old_text_style(translate_umlauts(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.NAME.value]))+ ' '+new_text_style(remove_numbers_at_end(translate_umlauts(event[1][RowNames.NAME.value])))
+                    e_name = change_text(translate_umlauts(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.NAME.value]), remove_numbers_at_end(translate_umlauts(event[1][RowNames.NAME.value])))
                 if prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.CALLED_UP.value] != event[1][RowNames.CALLED_UP.value]:
-                    e_group = old_text_style(translate_umlauts(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.CALLED_UP.value]))+ ' '+new_text_style(translate_umlauts(event[1][RowNames.CALLED_UP.value]))
+                    e_group = change_text(translate_umlauts(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.CALLED_UP.value]), translate_umlauts(event[1][RowNames.CALLED_UP.value]))
                 if prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.THEME.value] != event[1][RowNames.THEME.value]:
-                    e_theme = old_text_style(translate_umlauts(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.THEME.value]))+ ' '+new_text_style(translate_umlauts(event[1][RowNames.THEME.value]))
+                    e_theme = change_text(translate_umlauts(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.THEME.value]), translate_umlauts(event[1][RowNames.THEME.value]))
                 if prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.RESPONSIBLE.value] != event[1][RowNames.RESPONSIBLE.value]:
-                    e_responsible = old_text_style(translate_umlauts(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.RESPONSIBLE.value]))+ ' '+new_text_style(translate_umlauts(event[1][RowNames.RESPONSIBLE.value]))
+                    e_responsible = change_text(translate_umlauts(prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][RowNames.RESPONSIBLE.value]), translate_umlauts(event[1][RowNames.RESPONSIBLE.value]))
                 change_table_tex += generate_change_table_row(e_date, e_time, e_name, e_group, e_theme, e_responsible)
 
             missing_events_on_day = missing[missing[RowNames.DATE.value] == j]
@@ -131,6 +132,14 @@ def generate_change_table_tex(data, version, old_data, old_versions):
         current_version = previous_version
 
     return change_table_tex
+
+def change_text(old, new):
+    if old is None or old.strip() == '':
+        return new_text_style(new)
+    if new is None or new.strip() == '':
+        return old_text_style(old)
+    return old_text_style(old) + ' ' + new_text_style(new)
+
 
 def load_change_document():
     with open('pdf/templates/Anpassungen_Jahresprogramm_tmpl.tex', 'r') as file:
