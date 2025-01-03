@@ -12,7 +12,7 @@ def generate_tex(data):
         i = 1
         for index, row in data.iterrows():
             tmp = generate_row(row, i)
-            output_file.writelines(translate_umlauts(tmp))
+            output_file.writelines(tmp)
             i += 1
 
 def load_addition():

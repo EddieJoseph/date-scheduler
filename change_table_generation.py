@@ -9,7 +9,7 @@ from file_generation_utils import translate_umlauts, remove_numbers_at_end
 from row_names import RowNames
 
 
-def has_changed(date_1,date_2):
+def has_changed(date_1,date_2): #TODO add tex safe comparison of Theme and Responsible
     return not equals(date_1, date_2, RowNames.DATE) or not equals(date_1, date_2, RowNames.TIME) or not equals(date_1, date_2, RowNames.CALLED_UP) #or not equals(date_1, date_2, RowNames.THEME) or not equals(date_1, date_2, RowNames.RESPONSIBLE)
 
 

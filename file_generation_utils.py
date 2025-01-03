@@ -15,12 +15,45 @@ def translate_umlauts(text):
 
     if isinstance(text, int):
         text = str(text)
+
+    # text = text.replace('\\', '\\textbackslash')
+    text = text.replace('&', '\\&')
+    text = text.replace('{', '\\{')
+    text = text.replace('}', '\\}')
+    text = text.replace('$', '\\$')
+    text = text.replace('#', '\\#')
+    text = text.replace('°', '\\textdegree')
+    text = text.replace('^', '\\^{}')
+    text = text.replace('_', '\\_')
+    text = text.replace('~', '\\textasciitilde')
+    text = text.replace('%', '\\%')
+
     text = text.replace('ä', '\\"a')
+    text = text.replace('ë', '\\"e')
+    text = text.replace('ï', '\\"i')
     text = text.replace('ö', '\\"o')
     text = text.replace('ü', '\\"u')
+
     text = text.replace('Ä', '\\"A')
+    text = text.replace('Ë', '\\"E')
+    text = text.replace('Ï', '\\"I')
     text = text.replace('Ö', '\\"O')
     text = text.replace('Ü', '\\"U')
+
+    text = text.replace('á', '\\\'a')
+    text = text.replace('é', '\\\'e')
+
+    text = text.replace('à', '\\`a')
+    text = text.replace('è', '\\`e')
+
+    text = text.replace('â', '\\^a')
+    text = text.replace('ê', '\\^e')
+    text = text.replace('î', '\\^i')
+
+    text = text.replace('ç', '\\c{c}')
+    text = text.replace('Ç', '\\c{C}')
+    text = text.replace('ß', '\\ss')
+
     return text
 
 

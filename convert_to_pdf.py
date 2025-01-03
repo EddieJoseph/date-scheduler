@@ -16,8 +16,8 @@ from scheduler_config import SchedulerData
 
 
 if __name__ == '__main__':
-    version = '1.0.1'
-    old_versions = ['1.0']
+    version = '1.1'
+    old_versions = ['1.0.1','1.0']
 
     data = SchedulerData.create_from('input/dates_combined_'+version+'.xlsx').dates
     data.sort_values(by=RowNames.DATE.value, inplace=True)
@@ -102,7 +102,7 @@ if __name__ == '__main__':
         shutil.move('pdf/' + f, 'pdf/Jahresprogramm/')
     shutil.move('pdf/Jahresprogramm/', 'output/')
 
-    tmp_files = ['outputrows.tex', 'Jahreskalender.aux', 'Jahreskalender.gen.log', 'Jahreskalender.log', 'Jahreskalender.synctex.gz', 'Jahreskalender.tex', 'Jahresprogramm.aux', 'Jahresprogramm.gen.log', 'Jahresprogramm.log', 'Jahresprogramm.synctex.gz', 'Jahresprogramm.tex']
+    tmp_files = ['outputrows.aux', 'outputrows.tex', 'outputrows.gen.log', 'outputrows.log', 'outputrows.out', 'outputrows.synctex.gz', 'addition.aux', 'addition.tex', 'addition.gen.log', 'addition.log', 'addition.out', 'addition.synctex.gz', 'Jahreskalender.aux', 'Jahreskalender.tex', 'Jahreskalender.gen.log', 'Jahreskalender.log', 'Jahreskalender.out', 'Jahreskalender.synctex.gz', 'Jahresprogramm.aux', 'Jahresprogramm.tex', 'Jahresprogramm.gen.log', 'Jahresprogramm.log', 'Jahresprogramm.out', 'Jahresprogramm.synctex.gz', 'Änderungen_Jahresprogramm.aux', 'Änderungen_Jahresprogramm.tex', 'Änderungen_Jahresprogramm.gen.log', 'Änderungen_Jahresprogramm.log', 'Änderungen_Jahresprogramm.out', 'Änderungen_Jahresprogramm.synctex.gz']
 
     for f in tmp_files:
         try:
