@@ -44,7 +44,7 @@ def generate_ics(data, year, filename, version):
 
     for index, row in data.iterrows():
         event = Event()
-        event.name = row[RowNames.NAME.value]
+        event.name = row[RowNames.NAME.value] + group_name_addon(row)
         event.description = generate_description(row, version)
         event.uid = row[RowNames.ID.value]
         times = row[RowNames.TIME.value].split('-')
@@ -61,3 +61,17 @@ def generate_ics(data, year, filename, version):
 
     with codecs.open('pdf/'+filename, 'w','utf-8') as file:
         file.writelines(calendar.serialize_iter())
+
+def group_name_addon(row):
+    groups = []
+    if row[RowNames.GB.value]:
+        groups.append('GB')
+    if row[RowNames.KB.value]:
+        groups.append('KB')
+    if row[RowNames.RB.value]:
+        groups.append('RB')
+    if row[RowNames.TYPE.value] == 'J':
+        groups.append('JF')
+    if len(groups) == 0:
+        return ''
+    return ' ['+', '.join(groups)+']'
