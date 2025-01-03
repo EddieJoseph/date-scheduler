@@ -28,17 +28,17 @@ def old_text_style(text):
 
 
 def load_change_table_start():
-    with open('pdf/change_table_start_tmpl.tex', 'r') as file:
+    with open('pdf/templates/change_table_start_tmpl.tex', 'r') as file:
         return file.read()
 
 
 def load_change_table_end():
-    with open('pdf/change_table_end_tmpl.tex', 'r') as file:
+    with open('pdf/templates/change_table_end_tmpl.tex', 'r') as file:
         return file.read()
 
 
 def load_change_table_row():
-    with open('pdf/change_table_row_tmpl.tex', 'r') as file:
+    with open('pdf/templates/change_table_row_tmpl.tex', 'r') as file:
         return file.read()
 
 
@@ -133,7 +133,7 @@ def generate_change_table_tex(data, version, old_data, old_versions):
     return change_table_tex
 
 def load_change_document():
-    with open('pdf/Anpassungen_Jahresprogramm_tmpl.tex', 'r') as file:
+    with open('pdf/templates/Anpassungen_Jahresprogramm_tmpl.tex', 'r') as file:
         return file.read()
 
 def generate_change_file(filename, data, version, old_data, old_versions, date):

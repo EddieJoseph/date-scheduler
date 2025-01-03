@@ -16,7 +16,7 @@ def generate_tex(data):
             i += 1
 
 def load_addition():
-    with open('pdf/addition_tmpl.tex', 'r') as file:
+    with open('pdf/templates/addition_tmpl.tex', 'r') as file:
         return file.read()
 def generate_addition_tex(data, version, old_data, old_versions):
     addition = load_addition()
@@ -27,7 +27,7 @@ def generate_addition_tex(data, version, old_data, old_versions):
 def generate_pdf(title, displaytitle, version, date, filename, data, old_data, old_versions):
     print('Generating {}'.format(title))
     generate_tex(data)
-    with open('pdf/Jahresprogramm_tmpl.tex', 'r') as template:
+    with open('pdf/templates/Jahresprogramm_tmpl.tex', 'r') as template:
         with open('pdf/Jahresprogramm.tex', 'w') as output:
             for line in template:
                 line = line.replace('$title', title)
@@ -48,7 +48,7 @@ def generate_pdf(title, displaytitle, version, date, filename, data, old_data, o
 
 def generate_row(series, index):
     # read file row_templ.tex
-    with open('pdf/row_tmpl.tex', 'r') as file:
+    with open('pdf/templates/row_tmpl.tex', 'r') as file:
         row = file.read()
         date = convert_to_date(series[RowNames.DATE.value], 2025)
         date.weekday()

@@ -20,17 +20,17 @@ def get_day_description(date, holidays, additional_days):
 
 
 def load_cal_head():
-    with open('pdf/cal_head.tex', 'r') as file:
+    with open('pdf/templates/cal_head.tex', 'r') as file:
         return file.read()
 
 
 def load_cal_tmpl():
-    with open('pdf/cal_tmpl.tex', 'r') as file:
+    with open('pdf/templates/cal_tmpl.tex', 'r') as file:
         return file.read()
 
 
 def load_cal_subhead():
-    with open('pdf/cal_subhead.tex', 'r') as file:
+    with open('pdf/templates/cal_subhead.tex', 'r') as file:
         return file.read()
 
 
@@ -44,7 +44,7 @@ def set_cal_day(row, day_index, day_nr, day_info, line_1, line_2, line_3):
 
 
 def load_cal_row():
-    with open('pdf/cal_row.tex', 'r') as file:
+    with open('pdf/templates/cal_row.tex', 'r') as file:
         return file.read()
 
 
