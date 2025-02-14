@@ -19,17 +19,26 @@ def load_output(config_path: str):
 def convert_process_result(df, year):
     result_df = pd.DataFrame()
     result_df['datum'] = convert_timestamp_to_date(df[RowNames.DATE.value].map(lambda x: convert_to_datetime(x, year)))
+    result_df['zeit'] = df[RowNames.TIME.value]
     result_df['bezeichnung'] = df[RowNames.NAME.value]
     result_df['art'] = df[RowNames.TYPE.value]
     result_df['atemschutz'] = convert_to_boolean(df[RowNames.AS.value])
-    result_df['riehen'] = convert_to_boolean(df[RowNames.RB.value])
-    result_df['kleinbasel'] = convert_to_boolean(df[RowNames.KB.value])
-    result_df['grosbasel'] = convert_to_boolean(df[RowNames.GB.value])
-    result_df['mot'] = convert_to_boolean(df[RowNames.MOT.value])
-    result_df['assi'] = convert_to_boolean(df[RowNames.ASI.value])
-    result_df['kader'] = convert_to_boolean(df[RowNames.KADER.value])
-    result_df['offiziere'] = convert_to_boolean(df[RowNames.OFF.value])
-    result_df['samstag'] = convert_to_boolean(df[RowNames.SAT.value])
+    result_df['rb'] = convert_to_boolean(df[RowNames.RB.value])
+    result_df['kb'] = convert_to_boolean(df[RowNames.KB.value])
+    result_df['gb'] = convert_to_boolean(df[RowNames.GB.value])
+    # result_df['mot'] = convert_to_boolean(df[RowNames.MOT.value])
+    # result_df['assi'] = convert_to_boolean(df[RowNames.ASI.value])
+    # result_df['kader'] = convert_to_boolean(df[RowNames.KADER.value])
+    # result_df['offiziere'] = convert_to_boolean(df[RowNames.OFF.value])
+    # result_df['samstag'] = convert_to_boolean(df[RowNames.SAT.value])
+    result_df['thema'] = df[RowNames.THEME.value]
+    result_df['aufgeboten'] = df[RowNames.CALLED_UP.value]
+    result_df['verantwortlich'] = df[RowNames.RESPONSIBLE.value]
+    result_df['details'] = df[RowNames.DETAILS.value]
+
+
+
+
     return result_df
 
 
@@ -57,6 +66,26 @@ def save_converted_output(df, init_path: str):
     # Append DataFrame rows to the worksheet
     for r in dataframe_to_rows(df, index=False, header=True):
         ws.append(r)
+
+    # Auto-adjust column widths
+    for index, col in enumerate(ws.columns):
+        max_length = 0
+        column = col[0].column_letter  # Get the column name
+        if index == 0:
+            max_length = 10
+            for cell in col:
+                cell.number_format = 'DD.MM.YYYY'
+        else:
+            for cell in col:
+                try:
+                    if len(str(cell.value)) > max_length:
+                        max_length = len(cell.value)
+                except:
+                    pass
+        adjusted_width = (max_length + 4)
+        ws.column_dimensions[column].width = adjusted_width
+
+
 
     # Create a table
     tab = Table(displayName="Übungsdaten", ref="A1:" + get_last_cell(df))
