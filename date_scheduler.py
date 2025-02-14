@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 from pandas import DataFrame
 
@@ -10,6 +12,29 @@ def evaluate_candidate(candidate: DataFrame, config: SchedulerConfig):
     for evaluator in config.evaluators:
         total *= evaluator.evaluate(candidate)
     return total
+
+
+time_counter = 0
+timers = {}
+def evaluate_candidate_timed(candidate: DataFrame, config: SchedulerConfig):
+    global time_counter
+    time_counter += 1
+    total = 1
+    for evaluator in config.evaluators:
+        start = time.time()
+        total *= evaluator.evaluate(candidate)
+        end = time.time()
+        timers[evaluator.get_name()] = timers.get(evaluator.get_name(), 0) + end - start
+    return total
+
+def print_timers():
+
+    total = 0
+    for key in timers:
+        total += timers[key]/time_counter
+
+    for key in timers:
+        print(key + "\t" + str(timers[key]/time_counter) + "\t" + str(timers[key]/time_counter/total)+"%")
 
 
 def generate_candidate(dates: DataFrame, config: SchedulerConfig, limit_randomness=False):
@@ -70,4 +95,5 @@ def iterate(data: SchedulerData, config: SchedulerConfig, iterations=1, limit=Fa
         # if(i % 20 == 0):
         #     print(accepted_p)
     # print_evaluation(data.dates, data.score, accepted, accepted_p, config, accept, reject)
+    # print_timers()
     return data
