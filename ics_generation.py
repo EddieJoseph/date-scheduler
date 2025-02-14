@@ -1,10 +1,12 @@
 import codecs
 import math
 
+import pytz
 from ics import Calendar, Event
 
 from date_utils import convert_to_date
 from row_names import RowNames
+from datetime import datetime
 
 
 def get_string(text):
@@ -38,6 +40,9 @@ def generate_description(row, version):
     description += 'Version: ' + version
     return description
 
+def localize_date(date, time):
+    zurich_tz = pytz.timezone("Europe/Zurich")
+    return zurich_tz.localize(datetime(date.year, date.month, date.day, int(time.split(':')[0]), int(time.split(':')[1])))
 
 def generate_ics(data, year, filename, version):
     calendar = Calendar()
@@ -51,9 +56,10 @@ def generate_ics(data, year, filename, version):
         times = [x.strip() for x in times]
 
         if(len(times) == 2):
-            convert_to_date(row[RowNames.DATE.value],year)
-            event.begin = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + times[0] + ':00+01:00'
-            event.end = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + times[1] + ':00+01:00'
+            event.begin = localize_date(convert_to_date(row[RowNames.DATE.value],year), times[0])
+            event.end = localize_date(convert_to_date(row[RowNames.DATE.value],year), times[1])
+            #event.begin = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + times[0] + ':00+01:00'
+            #event.end = convert_to_date(row[RowNames.DATE.value], year).strftime('%Y-%m-%d ') + times[1] + ':00+01:00'
         else:
             event.begin = (convert_to_date(row[RowNames.DATE.value], year)).strftime('%Y-%m-%d')
             event.make_all_day()
