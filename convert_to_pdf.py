@@ -16,8 +16,8 @@ from scheduler_config import SchedulerData
 
 
 if __name__ == '__main__':
-    version = '1.2'
-    old_versions = ['1.1','1.0']
+    version = '1.3'
+    old_versions = ['1.2','1.1','1.0']
     #old_versions = ['1.0.1', '1.0']
 
     data = SchedulerData.create_from('input/dates_combined_'+version+'.xlsx').dates
