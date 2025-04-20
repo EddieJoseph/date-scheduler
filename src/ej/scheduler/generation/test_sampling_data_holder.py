@@ -2,62 +2,63 @@ from unittest import TestCase
 
 import numpy as np
 
-from ej.scheduler.generation.sampling_data_holder import SamplingDataHolder
+from ej.scheduler.generation.sampling_data_holder import SamplingDataHolder, sort_np_data
 from ej.scheduler.util.scheduler_config import SchedulerData
 
 
 class TestSamplingDataHolder(TestCase):
 
     def test_get_id_for_value(self):
-        s = SamplingDataHolder()
-        id = s.get_id_for_value("A","A")
+        s = SamplingDataHolder(SchedulerData.create_from('../../../../input/performance_test.xlsx'))
+        id = s._get_id_for_value("A", "A")
         self.assertEqual(id, 0)
-        id = s.get_id_for_value("B", "A")
+        id = s._get_id_for_value("B", "A")
         self.assertEqual(id, 1)
-        id = s.get_id_for_value("B", "B")
+        id = s._get_id_for_value("B", "B")
         self.assertEqual(id, 0)
-        id = s.get_id_for_value("B", "B")
+        id = s._get_id_for_value("B", "B")
         self.assertEqual(id, 0)
-        id = s.get_id_for_value("A", "A")
+        id = s._get_id_for_value("A", "A")
         self.assertEqual(id, 0)
-        id = s.get_id_for_value("A", "B")
+        id = s._get_id_for_value("A", "B")
         self.assertEqual(id, 1)
-        id = s.get_id_for_value("C", "A")
+        id = s._get_id_for_value("C", "A")
         self.assertEqual(id, 2)
-        id = s.get_id_for_value("A", "A")
+        id = s._get_id_for_value("A", "A")
         self.assertEqual(id, 0)
 
     def test_get_value_for_id(self):
-        s = SamplingDataHolder()
-        id = s.get_id_for_value("A", "A")
+        s = SamplingDataHolder(SchedulerData.create_from('../../../../input/performance_test.xlsx'))
+        id = s._get_id_for_value("A", "A")
         self.assertEqual(id, 0)
-        id = s.get_id_for_value("B", "A")
+        id = s._get_id_for_value("B", "A")
         self.assertEqual(id, 1)
-        id = s.get_id_for_value("B", "B")
+        id = s._get_id_for_value("B", "B")
         self.assertEqual(id, 0)
-        id = s.get_id_for_value("B", "B")
+        id = s._get_id_for_value("B", "B")
         self.assertEqual(id, 0)
-        id = s.get_id_for_value("A", "A")
+        id = s._get_id_for_value("A", "A")
         self.assertEqual(id, 0)
-        id = s.get_id_for_value("A", "B")
+        id = s._get_id_for_value("A", "B")
         self.assertEqual(id, 1)
-        id = s.get_id_for_value("C", "A")
+        id = s._get_id_for_value("C", "A")
         self.assertEqual(id, 2)
-        id = s.get_id_for_value("A", "A")
+        id = s._get_id_for_value("A", "A")
         self.assertEqual(id, 0)
 
-        self.assertEqual(s.get_value_for_id(0, "A"), "A")
-        self.assertEqual(s.get_value_for_id(1, "A"), "B")
-        self.assertEqual(s.get_value_for_id(0, "B"), "B")
-        self.assertEqual(s.get_value_for_id(2, "A"), "C")
+        self.assertEqual(s._get_value_for_id(0, "A"), "A")
+        self.assertEqual(s._get_value_for_id(1, "A"), "B")
+        self.assertEqual(s._get_value_for_id(0, "B"), "B")
+        self.assertEqual(s._get_value_for_id(2, "A"), "C")
+        self.assertEqual(s._get_value_for_id(10, "A"), None)
+        self.assertEqual(s._get_value_for_id(2, "D"), None)
 
 
 
     def test_get_data_frame(self):
         data = SchedulerData.create_from('../../../../input/performance_test.xlsx')
         s = SamplingDataHolder(data)
-        s.get_data_frame()
-        self.fail()
+        s.get_np_data()
 
 
     def test_get_scheduler_data(self):
@@ -68,5 +69,14 @@ class TestSamplingDataHolder(TestCase):
 
         # Check if the two dataframes are identical
         self.assertTrue(initial_df.equals(export_df))
+
+    def test_sort_np_data(self):
+        initial =  np.array( [[7, 8, 3], [1, 2, 9], [4, 5, 6]])
+        goal = np.array([[1, 2, 9], [4, 5, 6], [7, 8, 3]])
+        sorted_data = sort_np_data(initial, 1)
+        assert np.array_equal(sorted_data, goal), "Sorting failed"
+        goal = np.array([[7, 8, 3], [4, 5, 6], [1, 2, 9]])
+        sorted_data = sort_np_data(initial, 2)
+        assert np.array_equal(sorted_data, goal), "Sorting failed"
 
 
