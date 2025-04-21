@@ -30,6 +30,11 @@ def sort_np_data(np_data: np.ndarray, column_to_sort_by: int):
     sorted_array = np_data[sorted_indices, :]
     return sorted_array
 
+def sort_np_data_by_date(np_data: np.ndarray):
+    sorted_indices = np.argsort(np_data[:, SamplingRows.DATE.value])
+    sorted_array = np_data[sorted_indices, :]
+    return sorted_array
+
 def switch_dates(np_data: np.ndarray, index1: int, index2: int):
     temp = np.copy(np_data[index1,:])
     temp[SamplingRows.DATE.value] = np_data[index2, SamplingRows.DATE.value]
@@ -47,7 +52,7 @@ class SamplingDataHolder:
         self.data = data
         self.mapping = {}
         self.current_ids = {}
-        self.np_data = self._convert_from_dataframe(self.data.dates)
+        self.np_data = sort_np_data_by_date(self._convert_from_dataframe(self.data.dates))
         self.score = self.data.score
 
         self.types = self.data.dates[RowNames.TYPE.value].unique()
@@ -61,10 +66,10 @@ class SamplingDataHolder:
         return self.types
 
     def get_np_data(self) -> np.ndarray:
-        return self.np_data
+        return self.np_data.copy()
 
     def set_np_data(self, np_data: np.ndarray):
-        self.np_data = np_data
+        self.np_data = np_data.copy()
 
     def get_score(self) -> float:
         return self.score
