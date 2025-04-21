@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from ej.scheduler.generation.sampling_data_holder import SamplingDataHolder, sort_np_data
+from ej.scheduler.generation.sampling_data_holder import SamplingDataHolder, sort_np_data, switch_dates, change_date
 from ej.scheduler.util.scheduler_config import SchedulerData
 
 
@@ -79,4 +79,22 @@ class TestSamplingDataHolder(TestCase):
         sorted_data = sort_np_data(initial, 2)
         assert np.array_equal(sorted_data, goal), "Sorting failed"
 
+    def test_switch_dates(self):
+        initial = np.array( [[1, 1, 1], [2, 2, 2], [3, 3, 3]])
+        goal = np.array([[1, 1, 1], [2, 3, 3], [3, 2, 2]])
+        switched_data = switch_dates(initial, 1, 2)
+        assert np.array_equal(switched_data, goal), "Switch failed"
 
+        goal = np.array([[1, 2, 2], [2, 3, 3], [3, 1, 1]])
+        switched_data = switch_dates(switched_data, 0, 2)
+        assert np.array_equal(switched_data, goal), "Switch failed"
+
+    def test_change_date(self):
+        initial = np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3]])
+        goal = np.array([[4, 1, 1], [2, 2, 2], [3, 3, 3]])
+        changed_date = change_date(initial, 0, 4)
+        assert np.array_equal(changed_date, goal), "Switch failed"
+
+        goal = np.array([[4, 1, 1], [2, 2, 2], [7, 3, 3]])
+        changed_date = change_date(changed_date, 2, 7)
+        assert np.array_equal(changed_date, goal), "Switch failed"

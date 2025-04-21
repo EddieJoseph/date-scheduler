@@ -25,12 +25,21 @@ class SamplingRows(Enum):
     ORDER = 14
     INCLUDE = 15
 
-
 def sort_np_data(np_data: np.ndarray, column_to_sort_by: int):
     sorted_indices = np.argsort(np_data[:, column_to_sort_by])
     sorted_array = np_data[sorted_indices, :]
     return sorted_array
 
+def switch_dates(np_data: np.ndarray, index1: int, index2: int):
+    temp = np.copy(np_data[index1,:])
+    temp[SamplingRows.DATE.value] = np_data[index2, SamplingRows.DATE.value]
+    np_data[index1,:] = [np_data[index1, SamplingRows.DATE.value], *np_data[index2, SamplingRows.DATE.value + 1:]]
+    np_data[index2, :] = temp
+    return np_data
+
+def change_date(np_data: np.ndarray, index: int, new_date: int):
+    np_data[index, SamplingRows.DATE.value] = new_date
+    return np_data
 
 class SamplingDataHolder:
 
@@ -41,16 +50,27 @@ class SamplingDataHolder:
         self.np_data = self._convert_from_dataframe(self.data.dates)
         self.score = self.data.score
 
+        self.types = self.data.dates[RowNames.TYPE.value].unique()
+
     def get_scheduler_data(self) -> SchedulerData:
         self.data.dates = self._convert_to_dataframe()
-        # TODO add the score
+        self.data.score = self.score
         return self.data
+
+    def get_types(self):
+        return self.types
 
     def get_np_data(self) -> np.ndarray:
         return self.np_data
 
+    def set_np_data(self, np_data: np.ndarray):
+        self.np_data = np_data
+
     def get_score(self) -> float:
         return self.score
+
+    def set_score(self, score: float):
+        self.score = score
 
     def _convert_from_dataframe(self, data_frame):
         np_data = np.ones((len(data_frame), 16), dtype=np.int16) * -1
@@ -59,7 +79,7 @@ class SamplingDataHolder:
             np_data[index, SamplingRows.DATE.value] = row[RowNames.DATE.value]
             if not np.isnan(row[RowNames.MONTH.value]):
                 np_data[index, SamplingRows.MONTH.value] = row[RowNames.MONTH.value]
-            np_data[index, SamplingRows.TYPE.value] = self._get_id_for_value(row[RowNames.TYPE.value], "TYPE")
+            np_data[index, SamplingRows.TYPE.value] = self._get_id_for_value(row[RowNames.TYPE.value], RowNames.TYPE.value)
             np_data[index, SamplingRows.AS.value] = 1 if row[RowNames.AS.value] else 0
             np_data[index, SamplingRows.KB.value] = 1 if row[RowNames.KB.value] else 0
             np_data[index, SamplingRows.GB.value] = 1 if row[RowNames.GB.value] else 0
@@ -70,7 +90,7 @@ class SamplingDataHolder:
             np_data[index, SamplingRows.OFF.value] = 1 if row[RowNames.OFF.value] else 0
             np_data[index, SamplingRows.SAT.value] = 1 if row[RowNames.SAT.value] else 0
             np_data[index, SamplingRows.FIXED.value] = 1 if row[RowNames.FIXED.value] else 0
-            np_data[index, SamplingRows.ID.value] = self._get_id_for_value(row[RowNames.ID.value], "ID")
+            np_data[index, SamplingRows.ID.value] = self._get_id_for_value(row[RowNames.ID.value], RowNames.ID.value)
             if not np.isnan(row[RowNames.ORDER.value]):
                 np_data[index, SamplingRows.ORDER.value] = row[RowNames.ORDER.value]
             np_data[index, SamplingRows.INCLUDE.value] = 1 if row[RowNames.INCLUDE.value] else 0
@@ -80,7 +100,7 @@ class SamplingDataHolder:
     def _get_values_based_on_id(self, ids: np.ndarray, row):
         ret = []
         for id in ids:
-            translated_id = self._get_value_for_id(id, "ID")
+            translated_id = self._get_value_for_id(id, RowNames.ID.value)
             id_row = self.data.dates[self.data.dates[RowNames.ID.value] == translated_id]
             ret.append(id_row[row].iloc[0])
         return ret
@@ -91,7 +111,7 @@ class SamplingDataHolder:
         data_frame[RowNames.DATE.value] = sorted_np_data[:, SamplingRows.DATE.value].astype(dtype=np.int64)
         data_frame[RowNames.NAME.value] = self._get_values_based_on_id(sorted_np_data[:, SamplingRows.ID.value],
                                                                        RowNames.NAME.value)
-        data_frame[RowNames.TYPE.value] = [self._get_value_for_id(x, "TYPE") for x in
+        data_frame[RowNames.TYPE.value] = [self._get_value_for_id(x, RowNames.TYPE.value) for x in
                                            sorted_np_data[:, SamplingRows.TYPE.value]]
         data_frame[RowNames.AS.value] = [x == 1 for x in sorted_np_data[:, SamplingRows.AS.value]]
         data_frame[RowNames.RB.value] = [x == 1 for x in sorted_np_data[:, SamplingRows.RB.value]]
@@ -118,7 +138,7 @@ class SamplingDataHolder:
         data_frame[RowNames.DETAILS.value] = self._get_values_based_on_id(sorted_np_data[:, SamplingRows.ID.value],
                                                                           RowNames.DETAILS.value)
         data_frame[RowNames.INCLUDE.value] = [x == 1 for x in sorted_np_data[:, SamplingRows.INCLUDE.value]]
-        data_frame[RowNames.ID.value] = [self._get_value_for_id(x, "ID") for x in
+        data_frame[RowNames.ID.value] = [self._get_value_for_id(x, RowNames.ID.value) for x in
                                          sorted_np_data[:, SamplingRows.ID.value]]
         return data_frame
 
