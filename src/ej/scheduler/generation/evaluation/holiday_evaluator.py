@@ -1,8 +1,11 @@
+import numpy as np
 import pandas as pd
+from numpy import ndarray
 
 from ej.scheduler.util.date_utils import convert_to_day_of_year
 from ej.scheduler.util.row_names import RowNames, HolidayRowNames
 from .evaluator import Evaluator
+from ..sampling_data_holder import SamplingRows
 
 
 class HolidayEvaluator(Evaluator):
@@ -21,6 +24,9 @@ class HolidayEvaluator(Evaluator):
 
     def evaluate(self, dates: pd.DataFrame) -> float:
         return 0.8 ** len(dates[(dates[RowNames.FIXED.value].isin(self.blocked_dates))])
+
+    def evaluate_np(self, dates: ndarray) -> float:
+        return 0.8 ** len(np.intersect1d(dates[:,SamplingRows.DATE.value], self.blocked_dates))
 
     def get_name(self) -> str:
         return "HolidayEvaluator"

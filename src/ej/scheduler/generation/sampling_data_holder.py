@@ -68,6 +68,9 @@ class SamplingDataHolder:
     def get_np_data(self) -> np.ndarray:
         return self.np_data.copy()
 
+    def map_types(self, types):
+        return np.array([self._get_id_for_value(t, RowNames.TYPE.value) for t in types], dtype=np.int16)
+
     def set_np_data(self, np_data: np.ndarray):
         self.np_data = np_data.copy()
 

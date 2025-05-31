@@ -1,15 +1,29 @@
+import numpy as np
+
 from ej.scheduler.util.date_utils import get_month_from_day_of_year
 from ej.scheduler.util.row_names import RowNames
 from .evaluator import Evaluator
+from ..sampling_data_holder import SamplingRows
 
 
 class MonthEvaluator(Evaluator):
 
+    def __init__(self):
+        self.vectorized_get_month = np.vectorize(get_month_from_day_of_year)
+
     def evaluate(self, dates):
-        filtered = dates[dates[RowNames.DATE.value].notna()]
+        filtered = dates[dates[RowNames.MONTH.value].notna()]
         months = filtered[RowNames.DATE.value].map(lambda d: get_month_from_day_of_year(d))
         diff = filtered[RowNames.MONTH.value] - months
         violations = diff.abs().sum()
+
+        return 0.85 ** violations
+
+    def evaluate_np(self, dates):
+        filtered = dates[dates[:, SamplingRows.MONTH.value] != -1]
+        months = self.vectorized_get_month(filtered[:,SamplingRows.DATE.value])
+        diff = filtered[:,SamplingRows.MONTH.value] - months
+        violations = np.sum(np.abs(diff))
 
         return 0.85 ** violations
 

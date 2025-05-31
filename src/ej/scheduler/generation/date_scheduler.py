@@ -12,7 +12,7 @@ from ej.scheduler.util.scheduler_config import SchedulerData, SchedulerConfig
 def evaluate_candidate(candidate: DataFrame, config: SchedulerConfig):
     total = 1
     for evaluator in config.evaluators:
-        total *= evaluator.evaluate(candidate)
+        total *= evaluator.evaluate_np(candidate)
     return total
 
 def evaluate_candidate_np(candidate: np.ndarray, config: SchedulerConfig):
@@ -32,7 +32,7 @@ def evaluate_candidate_timed(candidate: DataFrame, config: SchedulerConfig):
     total = 1
     for evaluator in config.evaluators:
         start = time.time()
-        total *= evaluator.evaluate(candidate)
+        total *= evaluator.evaluate_np(candidate)
         end = time.time()
         timers[evaluator.get_name()] = timers.get(evaluator.get_name(), 0) + end - start
     return total
@@ -84,7 +84,7 @@ def generate_candidate_np(dates: np.ndarray, config: SchedulerConfig, limit_rand
         candidate = dates.copy()
         for i in range(len(candidate)):
             if candidate[i, SamplingRows.FIXED.value] == 0:
-                change_date(candidate,config.sampler.sample(candidate[i, SamplingRows.DATE.value]))
+                change_date(candidate,i,+config.sampler.sample(candidate[i, SamplingRows.DATE.value]))
         return sort_np_data_by_date(candidate)
     else:
         not_fixed_indices = np.where(dates[:,SamplingRows.FIXED.value] == 0)[0]
@@ -102,14 +102,14 @@ def generate_candidate_np(dates: np.ndarray, config: SchedulerConfig, limit_rand
 def print_evaluation(max, max_p, cand, cand_p, config: SchedulerConfig, accept, reject):
     var = "{:.2E}".format(cand_p) + ";" + str(accept / (accept + reject)) + ";" + "{:.2E}".format(max_p)
     for evaluator in config.evaluators:
-        var = var + ";" + type(evaluator).__name__ + " :" + "{:.2E}".format(evaluator.evaluate(cand))
+        var = var + ";" + type(evaluator).__name__ + " :" + "{:.2E}".format(evaluator.evaluate_np(cand))
     print(var)
 
 
 def print_details(data: SchedulerData, config: SchedulerConfig):
     var = "Score: {:.6E}".format(data.score)
     for evaluator in config.evaluators:
-        var = var + "\t" + type(evaluator).__name__ + " :" + "{:.2E}".format(evaluator.evaluate(data.dates))
+        var = var + "\t" + type(evaluator).__name__ + " :" + "{:.2E}".format(evaluator.evaluate_np(data.dates))
     print(var)
 
 def print_details_np(data: SamplingDataHolder, config: SchedulerConfig):
