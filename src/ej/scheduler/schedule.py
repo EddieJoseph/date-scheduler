@@ -98,19 +98,23 @@ if __name__ == '__main__':
 
     print('1st iteration')
     for i in range(100):
-        data_np = iterate_np(data_np, config, 1000, True)
+        # data_np = iterate_np(data_np, config, 1000, True)
+        data_np = multithreaded_iteration_np(data_np, config, 32, 1000, True)
         print_details_np(data_np, config)
     print('2nd iteration')
     for i in range(25):
-        data_np = iterate_np(data_np, config, 2000, False)
+        # data_np = iterate_np(data_np, config, 2000, False)
+        data_np = multithreaded_iteration_np(data_np, config, 32, 2000, False)
         print_details_np(data_np, config)
     print('3rd iteration')
     for i in range(100):
-        data_np = iterate_np(data_np, config, 1000, True)
+        # data_np = iterate_np(data_np, config, 1000, True)
+        data_np = multithreaded_iteration_np(data_np, config, 32, 1000, True)
         print_details_np(data_np, config)
     print('4th iteration')
     for i in range(25):
-        data_np = iterate_np(data_np, config, 2000, False)
+        # data_np = iterate_np(data_np, config, 2000, False)
+        data_np = multithreaded_iteration_np(data_np, config, 32, 2000, False)
         print_details_np(data_np, config)
 
     # for i in range(100):
