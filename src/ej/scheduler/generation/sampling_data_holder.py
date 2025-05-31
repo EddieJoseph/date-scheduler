@@ -54,7 +54,6 @@ class SamplingDataHolder:
         self.current_ids = {}
         self.np_data = sort_np_data_by_date(self._convert_from_dataframe(self.data.dates))
         self.score = self.data.score
-
         self.types = self.data.dates[RowNames.TYPE.value].unique()
 
     def get_scheduler_data(self) -> SchedulerData:

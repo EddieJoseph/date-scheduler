@@ -2,7 +2,8 @@ import multiprocessing
 
 import numpy as np
 
-from ej.scheduler.generation.date_scheduler import iterate, print_details, iterate_np, print_details_np
+from ej.scheduler.generation.date_scheduler import iterate, print_details, iterate_np, print_details_np, \
+    evaluate_candidate_np
 from ej.scheduler.generation.evaluation.as_clean_evaluator import AsCleanEvaluator
 from ej.scheduler.generation.evaluation.assi_evaluator import AssiEvaluator
 from ej.scheduler.generation.evaluation.holiday_evaluator import HolidayEvaluator
@@ -91,11 +92,13 @@ if __name__ == '__main__':
     config = SchedulerConfig.create_from('input/people.xlsx', year,
                                          [type_spread_evaluator, as_evaluator, holiday_evaluator, weekend_evaluator, same_day_evaluator, jf_holiday_evaluator, week_clumping_evaluator, month_evaluator, assi_evaluator], sampler)
     data_np = SamplingDataHolder(data)
+    data_np.set_score(evaluate_candidate_np(data_np.get_np_data(),config))
 
     type_spread_evaluator.set_types(data_np)
     jf_holiday_evaluator.set_jf_type(data_np)
     assi_evaluator.set_assi_types(data_np)
 
+    print('Initial score: ', data_np.get_score())
     print('1st iteration')
     for i in range(100):
         # data_np = iterate_np(data_np, config, 1000, True)
