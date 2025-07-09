@@ -160,7 +160,7 @@ def iterate_np(data: SamplingDataHolder, config: SchedulerConfig, iterations=1, 
             data.set_score(cand_p)
             data.set_np_data(cand)
 
-        if min(1.0, cand_p / accepted_p) > np.random.rand():
+        if min(1.0, cand_p / accepted_p) > np.random.rand()**0.7:
             accepted = cand
             accepted_p = cand_p
             accept += 1
@@ -168,6 +168,6 @@ def iterate_np(data: SamplingDataHolder, config: SchedulerConfig, iterations=1, 
             reject += 1
         # if(i % 20 == 0):
         #     print(accepted_p)
-    # print_evaluation(data.dates, data.score, accepted, accepted_p, config, accept, reject)
+    # print_evaluation(data.get_np_data(), data.score, accepted, accepted_p, config, accept, reject)
     # print_timers()
     return data
