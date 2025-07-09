@@ -62,17 +62,23 @@ def plot_results(score, iterations, enapled:bool=True):
         plotter.add_result(score, iterations)
 
 
-def batch_iterations(iterations,repeat,limit_sampling,log_msg=None,multithreaded=True):
+def batch_iterations(iterations,repeat,limit_sampling,log_msg=None,multithreaded=True,cycles=True):
     global data_np
     if(log_msg is not None):
         print(log_msg)
     for i in range(repeat):
         if not multithreaded:
             data_np = iterate_np(data_np, config, iterations, limit_sampling)
-            plot_results(data_np.get_score(), iterations)
+            if not cycles:
+                plot_results(data_np.get_score(), iterations)
+            else:
+                plot_results(data_np.get_score(), 1)
         else:
             data_np = multithreaded_iteration_np(data_np, config, thread_nr, iterations, limit_sampling)
-            plot_results(data_np.get_score(), iterations * thread_nr)
+            if not cycles:
+                plot_results(data_np.get_score(), iterations * thread_nr)
+            else:
+                plot_results(data_np.get_score(), 1)
         print_details_np(data_np, config)
 
 
@@ -104,49 +110,74 @@ if __name__ == '__main__':
     assi_evaluator = AssiEvaluator()
 
     data = SchedulerData.create_from('input/performance_test.xlsx')
+    # data = SchedulerData.create_from('input/dates1.xlsx')
     config = SchedulerConfig.create_from('input/people.xlsx', year,
                                          [type_spread_evaluator, as_evaluator, holiday_evaluator, weekend_evaluator, same_day_evaluator, jf_holiday_evaluator, week_clumping_evaluator, month_evaluator, assi_evaluator], sampler)
     data_np = SamplingDataHolder(data)
-    data_np.set_score(evaluate_candidate_np(data_np.get_np_data(),config))
+
 
     type_spread_evaluator.set_types(data_np)
     jf_holiday_evaluator.set_jf_type(data_np)
     assi_evaluator.set_assi_types(data_np)
 
+    data_np.set_score(evaluate_candidate_np(data_np.get_np_data(), config))
     print('Initial score: ', data_np.get_score())
     i=1
 
     plot_results(data_np.get_score(), 0)
-    batch_iterations(25, 100, True, 'starting set ' + str(i))
+    batch_iterations(25, 200, True, 'starting set ' + str(i))
     sd = data_np.get_scheduler_data()
     sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
     convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
     i = i + 1
 
-    plot_results(data_np.get_score(), 0)
-    batch_iterations(100, 50, True, 'starting set ' + str(i))
+    batch_iterations(5000, 1, True, 'starting set ' + str(i))
+    sd = data_np.get_scheduler_data()
+    sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
+    # i = i + 1
+    batch_iterations(50, 400, True, 'starting set ' + str(i))
     sd = data_np.get_scheduler_data()
     sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
     convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
     i = i + 1
 
-    plot_results(data_np.get_score(),0)
-    batch_iterations(200,25, True, 'starting set ' + str(i))
+    batch_iterations(5000, 2, True, 'starting set ' + str(i))
+    sd = data_np.get_scheduler_data()
+    sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
+    # i = i + 1
+    batch_iterations(100, 400, True, 'starting set ' + str(i))
+    sd = data_np.get_scheduler_data()
+    sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
+    i = i + 1
+
+    batch_iterations(5000, 3, True, 'starting set ' + str(i))
+    sd = data_np.get_scheduler_data()
+    sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
+    # i = i + 1
+    batch_iterations(200,800, True, 'starting set ' + str(i))
     sd = data_np.get_scheduler_data()
     sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
     convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
     i=i+1
 
+    batch_iterations(5000, 4, True, 'starting set ' + str(i))
+    sd = data_np.get_scheduler_data()
+    sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
+    convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
+    # i = i + 1
+
     for xyz in range(0,100):
-        plot_results(data_np.get_score(), 0)
-        batch_iterations(300, 20, True, 'starting set ' + str(i))
+        batch_iterations(250, 1000, True, 'starting set ' + str(i))
         sd = data_np.get_scheduler_data()
         sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
         convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
-        i = i + 1
+        # i = i + 1
 
-        plot_results(data_np.get_score(), 0)
-        batch_iterations(1000, 5, True, 'starting set ' + str(i))
+        batch_iterations(5000, 5, True, 'starting set ' + str(i))
         sd = data_np.get_scheduler_data()
         sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
         convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
