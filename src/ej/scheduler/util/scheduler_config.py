@@ -1,3 +1,5 @@
+from typing import List
+
 import pandas as pd
 from pandas import DataFrame
 
@@ -9,16 +11,14 @@ from .row_names import RowNames
 
 class SchedulerConfig:
 
-    def __init__(self, groups: DataFrame, year: int, evaluators: [Evaluator], sampler: Sampler):
-        self.groups = groups
+    def __init__(self, year: int, evaluators: List[Evaluator], sampler: Sampler):
         self.year = year
         self.evaluators = evaluators
         self.sampler = sampler
 
-    @staticmethod
-    def create_from(path: str, year: int, evaluators: [Evaluator], sampler: Sampler):
-        groups = pd.read_excel(path)
-        return SchedulerConfig(groups, year, evaluators, sampler)
+    # @staticmethod
+    # def create_from( year: int, evaluators: [Evaluator], sampler: Sampler):
+    #     return SchedulerConfig( year, evaluators, sampler)
 
 
 class SchedulerData:
@@ -51,16 +51,15 @@ class SchedulerData:
         df.to_excel(path, index=False)
 
 
-def create_scheduler_config(dates_path: str, groups_path: str, year: int, evaluators: [Evaluator], sampler: Sampler):
-    dates = pd.read_excel(dates_path)
-    groups = pd.read_excel(groups_path)
-    return SchedulerConfig(dates, groups, year, evaluators, sampler)
-
-
-def create_new_scheduler_config(result: SchedulerData, config: SchedulerConfig):
-    return SchedulerConfig(result.dates, config.groups, config.year, config.evaluators, config.sampler)
-
-
-def clone_scheduler_config(config: SchedulerConfig):
-    return SchedulerConfig(config.dates.copy(True), config.groups.copy(True), config.year, config.evaluators,
-                           config.sampler)
+# def create_scheduler_config(dates_path: str, year: int, evaluators: [Evaluator], sampler: Sampler):
+#     dates = pd.read_excel(dates_path)
+#     return SchedulerConfig(dates, year, evaluators, sampler)
+#
+#
+# def create_new_scheduler_config(result: SchedulerData, config: SchedulerConfig):
+#     return SchedulerConfig(result.dates, config.groups, config.year, config.evaluators, config.sampler)
+#
+#
+# def clone_scheduler_config(config: SchedulerConfig):
+#     return SchedulerConfig(config.dates.copy(True), config.groups.copy(True), config.year, config.evaluators,
+#                            config.sampler)

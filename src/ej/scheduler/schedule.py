@@ -57,8 +57,8 @@ def multithreaded_iteration_np(ti_data: SamplingDataHolder, ti_config, num_threa
                 best = r
         return best
 
-def plot_results(score, iterations, enapled:bool=True):
-    if enapled:
+def plot_results(score, iterations, enabled:bool=True):
+    if enabled:
         plotter.add_result(score, iterations)
 
 
@@ -111,8 +111,7 @@ if __name__ == '__main__':
 
     data = SchedulerData.create_from('input/performance_test.xlsx')
     # data = SchedulerData.create_from('input/dates1.xlsx')
-    config = SchedulerConfig.create_from('input/people.xlsx', year,
-                                         [type_spread_evaluator, as_evaluator, holiday_evaluator, weekend_evaluator, same_day_evaluator, jf_holiday_evaluator, week_clumping_evaluator, month_evaluator, assi_evaluator], sampler)
+    config = SchedulerConfig( year,[type_spread_evaluator, as_evaluator, holiday_evaluator, weekend_evaluator, same_day_evaluator, jf_holiday_evaluator, week_clumping_evaluator, month_evaluator, assi_evaluator], sampler)
     data_np = SamplingDataHolder(data)
 
 

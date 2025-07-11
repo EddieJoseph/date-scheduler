@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import pandas as pd
 
@@ -6,7 +8,7 @@ from .sampler import Sampler
 
 
 class FilteredCombinedSampler(Sampler):
-    def __init__(self, samplers: [Sampler], weights: [float], year, holiday_path):
+    def __init__(self, samplers: List[Sampler], weights: List[float], year, holiday_path):
         if len(samplers) != len(weights):
             raise ValueError("samplers and weights must have the same length")
         if sum(weights) != 1:
