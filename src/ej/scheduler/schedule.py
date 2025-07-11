@@ -142,7 +142,7 @@ if __name__ == '__main__':
     convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
     i = i + 1
 
-    batch_iterations(5000, 2, True, 'starting set ' + str(i))
+    batch_iterations(5000, 10, True, 'starting set ' + str(i))
     sd = data_np.get_scheduler_data()
     sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
     convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
@@ -153,7 +153,7 @@ if __name__ == '__main__':
     convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
     i = i + 1
 
-    batch_iterations(5000, 3, True, 'starting set ' + str(i))
+    batch_iterations(5000, 30, True, 'starting set ' + str(i))
     sd = data_np.get_scheduler_data()
     sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
     convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
@@ -164,20 +164,20 @@ if __name__ == '__main__':
     convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
     i=i+1
 
-    batch_iterations(5000, 4, True, 'starting set ' + str(i))
+    batch_iterations(10000, 5, True, 'starting set ' + str(i))
     sd = data_np.get_scheduler_data()
     sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
     convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
     # i = i + 1
 
-    for xyz in range(0,100):
-        batch_iterations(250, 1000, True, 'starting set ' + str(i))
+    for xyz in range(0,1000):
+        batch_iterations(250, 500, True, 'starting set ' + str(i))
         sd = data_np.get_scheduler_data()
         sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
         convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
         # i = i + 1
 
-        batch_iterations(5000, 5, True, 'starting set ' + str(i))
+        batch_iterations(10000, 10, True, 'starting set ' + str(i))
         sd = data_np.get_scheduler_data()
         sd.save_to(year, 'output/dates' + str(i) + '.xlsx')
         convert_output(sd.dates, 'output/dates_pretty' + str(i) + '.xlsx', 2025)
