@@ -1,6 +1,7 @@
 import os
 import shutil
 from datetime import date
+from typing import List
 
 import pandas as pd
 
@@ -13,9 +14,9 @@ from ej.scheduler.util.file_generation_utils import filter_dates, enumerate_name
 from ej.scheduler.util.row_names import RowNames, Groups
 from ej.scheduler.util.scheduler_config import SchedulerData
 
-if __name__ == '__main__':
-    version = '1.3'
-    old_versions = ['1.2', '1.1', '1.0']
+def generate_reports(version:str, old_versions:List[str], input_file_prefix:str, holiday_file_path:str, additional_days_file_path:str, year):
+    # version = '1.3'
+    # old_versions = ['1.2', '1.1', '1.0']
 
     data = SchedulerData.create_from('input/dates_combined_' + version + '.xlsx').dates
     data.sort_values(by=RowNames.DATE.value, inplace=True)
@@ -36,14 +37,14 @@ if __name__ == '__main__':
     outputfiles = []
 
     outputfiles.append('Jahresprogramm_komplett_' + version + '.xlsx')
-    convert_output(data, 'pdf/' + outputfiles[-1], 2025)
+    convert_output(data, 'pdf/' + outputfiles[-1], year)
 
     outputfiles.append('Jahreskalender_komplett_' + version + '.pdf')
-    generate_cal(data, 2025, outputfiles[-1], 'Milizfeuerwehr Basel-Stadt Jahreskalender 2025',
+    generate_cal(data, year, outputfiles[-1], 'Milizfeuerwehr Basel-Stadt Jahreskalender '+ str(year),
                  'Milizfeuerwehr Basel-Stadt', currentdate, version, holidays, additional_days)
 
     outputfiles.append('Jahresprogramm_komplett_' + version + '.ics')
-    generate_ics(data, 2025, outputfiles[-1], version)
+    generate_ics(data, year, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.JF, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.JF, old_version), old_data))
@@ -51,10 +52,10 @@ if __name__ == '__main__':
     generate_pdf('Jahresprogramm JF', 'Jugendfeuerwehr', version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_JF_' + version + '.pdf')
-    generate_cal(data_kp, 2025, outputfiles[-1], 'Jugendfeuerwehr Jahreskalender 2025',
+    generate_cal(data_kp, year, outputfiles[-1], 'Jugendfeuerwehr Jahreskalender '+ str(year),
                  'Jugendfeuerwehr', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_JF_' + version + '.ics')
-    generate_ics(data_kp, 2025, outputfiles[-1], version)
+    generate_ics(data_kp, year, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.RB, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.RB, old_version), old_data))
@@ -62,10 +63,10 @@ if __name__ == '__main__':
     generate_pdf('Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_RB_' + version + '.pdf')
-    generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Riehen-Bettingen Jahreskalender 2025',
+    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Riehen-Bettingen Jahreskalender '+ str(year),
                  'Feuerwehr Riehen-Bettingen', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_RB_' + version + '.ics')
-    generate_ics(data_kp, 2025, outputfiles[-1], version)
+    generate_ics(data_kp, year, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.KB, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.KB, old_version), old_data))
@@ -73,10 +74,10 @@ if __name__ == '__main__':
     generate_pdf('Jahresprogramm KB', 'Feuerwehr Kleinbasel', version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_KB_' + version + '.pdf')
-    generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Kleinbasel Jahreskalender 2025',
+    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Kleinbasel Jahreskalender '+ str(year),
                  'Feuerwehr Kleinbasel', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_KB_' + version + '.ics')
-    generate_ics(data_kp, 2025, outputfiles[-1], version)
+    generate_ics(data_kp, year, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.GB, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.GB, old_version), old_data))
@@ -84,10 +85,10 @@ if __name__ == '__main__':
     generate_pdf('Jahresprogramm GB', 'Feuerwehr Grossbasel', version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_GB_' + version + '.pdf')
-    generate_cal(data_kp, 2025, outputfiles[-1], 'Feuerwehr Grossbasel Jahreskalender 2025',
+    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Grossbasel Jahreskalender '+ str(year),
                  'Feuerwehr Grossbasel', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_GB_' + version + '.ics')
-    generate_ics(data_kp, 2025, outputfiles[-1], version)
+    generate_ics(data_kp, year, outputfiles[-1], version)
 
     outputfiles.append('Änderungen_Jahresprogramm_' + version + '.pdf')
     generate_change_file(outputfiles[-1], data, version, old_data, old_versions, currentdate)
@@ -113,3 +114,15 @@ if __name__ == '__main__':
             os.remove('pdf/' + f)
         except:
             pass
+
+
+
+
+
+if __name__ == '__main__':
+    version = '1.3'
+    old_versions = ['1.2', '1.1', '1.0']
+    input_file_prefix = 'input/dates_combined_'
+    holiday_file_path = 'input/holidays.xlsx'
+    additional_days_file_path = 'input/additional_days.xlsx'
+    generate_reports(version, old_versions, input_file_prefix, holiday_file_path, additional_days_file_path, 2025)
