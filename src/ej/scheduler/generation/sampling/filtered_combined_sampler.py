@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from ej.scheduler.util.date_utils import convert_to_day_of_year, get_sundays_of_year
+from ej.scheduler.util.date_utils import convert_to_day_of_year, get_sundays_of_year, get_fridays_of_year
 from .sampler import Sampler
 
 
@@ -28,7 +28,7 @@ class FilteredCombinedSampler(Sampler):
                 for d in range(start, end):
                     blocked_dates.append(d)
 
-        self.blocked_dates = np.unique(np.concatenate([blocked_dates, get_sundays_of_year(year)]))
+        self.blocked_dates = np.unique(np.concatenate([blocked_dates, get_sundays_of_year(year), get_fridays_of_year(year)]))
 
     def sample(self, date):
         sampler = np.random.choice(self.samplers, p=self.weights)
