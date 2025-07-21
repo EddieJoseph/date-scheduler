@@ -114,15 +114,3 @@ def generate_reports(version:str, old_versions:List[str], input_file_prefix:str,
             os.remove('pdf/' + f)
         except:
             pass
-
-
-
-
-
-if __name__ == '__main__':
-    version = '1.3'
-    old_versions = ['1.2', '1.1', '1.0']
-    input_file_prefix = 'input/dates_combined_'
-    holiday_file_path = 'input/holidays.xlsx'
-    additional_days_file_path = 'input/additional_days.xlsx'
-    generate_reports(version, old_versions, input_file_prefix, holiday_file_path, additional_days_file_path, 2025)

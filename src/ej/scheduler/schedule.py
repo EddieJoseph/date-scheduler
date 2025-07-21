@@ -180,6 +180,3 @@ def optimize(input_file_path:str, holiday_file_path:str, output_file_prefix:str,
         sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
         convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', 2025)
         i = i + 1
-
-if __name__ == '__main__':
-    optimize('input/performance_test.xlsx', 'input/holidays.xlsx', 'output/dates', 2025, 74587)
