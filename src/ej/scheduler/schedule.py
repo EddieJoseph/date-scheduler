@@ -87,7 +87,6 @@ def batch_iterations(data_np:SamplingDataHolder,iterations,repeat,limit_sampling
 def optimize(input_file_path:str, holiday_file_path:str, output_file_prefix:str, year:int, random_seed:int | None = None, thread_nr:int=32):
     if(random_seed is not None):
         np.random.seed(random_seed)
-    get_week_days_of_year(year)
     plotter = Plotter()
 
     no_change_sampler = NoChangeDateSampler()

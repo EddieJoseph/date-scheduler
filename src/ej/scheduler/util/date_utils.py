@@ -30,7 +30,7 @@ def get_week_days_of_year(year):
 
 def get_fridays_of_year(year):
     # Get fridays of year
-    return np.array([i for i in range(365) if convert_to_datetime(i, year).weekday() == 5])
+    return np.array([i for i in range(365) if convert_to_datetime(i, year).weekday() == 4])
 
 def get_saturdays_of_year(year):
     # Get saturdays of year
