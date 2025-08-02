@@ -16,17 +16,6 @@ class WeekendEvaluator(Evaluator):
         self.weekend = np.concatenate((self.fridays, self.saturdays, self.sundays))
 
     def evaluate(self, dates):
-        sat_dates = dates[dates[RowNames.SAT.value] == True][RowNames.DATE.value]
-        not_sat_dates = dates[dates[RowNames.SAT.value] == False][RowNames.DATE.value]
-
-        a = len(not_sat_dates[not_sat_dates.isin(self.weekend)])
-        b = len(sat_dates[sat_dates.isin(self.non_sat_weekend)])
-        c = len(sat_dates) - len(sat_dates[sat_dates.isin(self.saturdays)])
-
-        tmp = 0.6 ** (a + b + c)
-        return tmp
-
-    def evaluate_np(self, dates):
         sat_dates = dates[dates[:,SamplingRows.SAT.value]==1][:,SamplingRows.DATE.value]
         not_sat_dates = dates[dates[:,SamplingRows.SAT.value]!=1][:,SamplingRows.DATE.value]
         a = len(np.intersect1d(not_sat_dates, self.weekend))

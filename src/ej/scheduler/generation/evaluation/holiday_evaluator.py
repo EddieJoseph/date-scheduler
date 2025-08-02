@@ -22,10 +22,7 @@ class HolidayEvaluator(Evaluator):
                 for d in range(start, end):
                     self.blocked_dates.append(d)
 
-    def evaluate(self, dates: pd.DataFrame) -> float:
-        return 0.8 ** len(dates[(dates[RowNames.FIXED.value].isin(self.blocked_dates))])
-
-    def evaluate_np(self, dates: ndarray) -> float:
+    def evaluate(self, dates: ndarray) -> float:
         return 0.8 ** len(np.intersect1d(dates[:,SamplingRows.DATE.value], self.blocked_dates))
 
     def get_name(self) -> str:

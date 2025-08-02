@@ -7,12 +7,9 @@ from ej.scheduler.util.row_names import RowNames
 
 
 class Evaluator:
-    @abstractmethod
-    def evaluate(self, dates: pd.DataFrame) -> float:
-        pass
 
     @abstractmethod
-    def evaluate_np(self, dates:ndarray) -> float:
+    def evaluate(self, dates:ndarray) -> float:
         pass
 
     @abstractmethod

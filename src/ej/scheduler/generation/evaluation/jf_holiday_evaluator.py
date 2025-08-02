@@ -26,11 +26,7 @@ class JfHolidayEvaluator(Evaluator):
     def set_jf_type(self, sampling_data_holder: SamplingDataHolder):
         self.jf_type = sampling_data_holder.map_types(['J'])[0]
 
-    def evaluate(self, dates: pd.DataFrame) -> float:
-        filtered_dates = dates[dates[RowNames.TYPE.value] == 'J']
-        return 0.8 ** len(filtered_dates[(filtered_dates[RowNames.DATE.value].isin(self.blocked_dates))])
-
-    def evaluate_np(self, dates: ndarray) -> float:
+    def evaluate(self, dates: ndarray) -> float:
         jf_dates = dates[dates[:, SamplingRows.TYPE.value] == self.jf_type][:,SamplingRows.DATE.value]
         return 0.8 ** len(np.intersect1d(jf_dates, self.blocked_dates))
 

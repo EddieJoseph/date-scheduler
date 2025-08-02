@@ -16,11 +16,6 @@ class WeekClumpingEvaluator(Evaluator):
         return np.floor((day + self.wd_offset) / 7).astype(int)
 
     def evaluate(self, dates):
-        weeks = dates[RowNames.DATE.value].apply(self.get_week).value_counts()
-        tmp = 0.99 ** len(weeks[weeks > 2]) * 0.9 ** len(weeks[weeks > 3]) * 0.5 ** len(weeks[weeks > 5])
-        return tmp
-
-    def evaluate_np(self, dates):
         weeks = np.unique(self.vectorized_get_week(dates[:, SamplingRows.DATE.value]),return_counts=True)[1]
         tmp = 0.99 ** len(weeks[weeks > 2]) * 0.9 ** len(weeks[weeks > 3]) * 0.5 ** len(weeks[weeks > 5])
         return tmp
