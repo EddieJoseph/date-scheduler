@@ -2,18 +2,17 @@ import numpy as np
 import pandas as pd
 from numpy import ndarray
 
-from ej.scheduler.util.date_utils import convert_to_day_of_year
+from ej.scheduler.util.date_utils import convert_to_day_of_year, filter_events
 from ej.scheduler.util.row_names import RowNames, HolidayRowNames
 from .evaluator import Evaluator
 from ..sampling_data_holder import SamplingRows, SamplingDataHolder
 
-
 class JfHolidayEvaluator(Evaluator):
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, year: int):
         self.jf_type = None
         holidays = pd.read_excel(path)
-
+        holidays = filter_events(holidays, year)
         self.blocked_dates = []
 
         for index, row in holidays.iterrows():

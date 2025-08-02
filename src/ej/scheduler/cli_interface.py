@@ -22,7 +22,7 @@ def parse_args():
     parser_generate.add_argument('-a', "--additional-dates", help="Additional date file", required=True)
     parser_generate.add_argument('-y', '--year', help='Year', type=int, required=True)
     parser_generate.add_argument('-v', '--version', help='Version', required=True)
-    parser_generate.add_argument('-o', '--old-versions', help='Old versions', required=True)
+    parser_generate.add_argument('-o', '--old-versions', help='Old versions', required=False)
 
     return parser.parse_args()
 
@@ -50,4 +50,8 @@ if __name__ == '__main__':
         print(args.year)
         print(args.version)
 
-        generate_reports(args.version,args.old_versions.split(','), args.input, args.holidays, args.additional_dates, args.year)
+        old_versions = []
+        if args.old_versions:
+            old_versions = args.old_versions.split(',')
+
+        generate_reports(args.version,old_versions, args.input, args.holidays, args.additional_dates, args.year)

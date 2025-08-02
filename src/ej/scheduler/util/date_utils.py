@@ -1,6 +1,9 @@
 from datetime import datetime
 
 import numpy as np
+import pandas as pd
+
+from ej.scheduler.util.row_names import HolidayRowNames
 
 
 def convert_to_day_of_year(date, throw_errors=True):
@@ -89,3 +92,12 @@ def get_weekday_name(weekday):
     if weekday == 6:
         return 'Sonntag'
     raise Exception('Invalid')
+
+def filter_events(events: pd.DataFrame, year: int) -> pd.DataFrame:
+    filtered = events[(events[HolidayRowNames.START.value].dt.year == year) |
+                      (events[HolidayRowNames.END.value].dt.year == year)]
+    filtered.loc[filtered[HolidayRowNames.START.value].dt.year < year, HolidayRowNames.START.value] = pd.Timestamp(
+        f"{year}-01-01")
+    filtered.loc[filtered[HolidayRowNames.END.value].dt.year > year, HolidayRowNames.END.value] = pd.Timestamp(
+        f"{year}-12-31")
+    return filtered

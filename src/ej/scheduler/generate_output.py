@@ -10,6 +10,7 @@ from ej.scheduler.reporting.ics.ics_generation import generate_ics
 from ej.scheduler.reporting.pdf.calendar_pdf_generation import generate_cal
 from ej.scheduler.reporting.pdf.change_table_generation import generate_change_file
 from ej.scheduler.reporting.pdf.programm_pdf_generation import generate_pdf
+from ej.scheduler.util.date_utils import filter_events
 from ej.scheduler.util.file_generation_utils import filter_dates, enumerate_names
 from ej.scheduler.util.row_names import RowNames, Groups
 from ej.scheduler.util.scheduler_config import SchedulerData
@@ -18,12 +19,12 @@ def generate_reports(version:str, old_versions:List[str], input_file_prefix:str,
     # version = '1.3'
     # old_versions = ['1.2', '1.1', '1.0']
 
-    data = SchedulerData.create_from('input/dates_combined_' + version + '.xlsx').dates
+    data = SchedulerData.create_from(input_file_prefix + version + '.xlsx').dates
     data.sort_values(by=RowNames.DATE.value, inplace=True)
     data = data[data[RowNames.INCLUDE.value] == True]
 
     old_data = list(
-        map(lambda old_version: SchedulerData.create_from('input/dates_combined_' + old_version + '.xlsx').dates,
+        map(lambda old_version: SchedulerData.create_from(input_file_prefix + old_version + '.xlsx').dates,
             old_versions))
     for index, old in enumerate(old_data):
         old_data[index] = old[old[RowNames.INCLUDE.value] == True]
@@ -32,8 +33,8 @@ def generate_reports(version:str, old_versions:List[str], input_file_prefix:str,
 
     currentdate = date.today().strftime('%d.%m.%Y')
 
-    holidays = pd.read_excel('input/holidays.xlsx')
-    additional_days = pd.read_excel('input/additional_days.xlsx')
+    holidays = filter_events(pd.read_excel(holiday_file_path), year)
+    additional_days = filter_events(pd.read_excel(additional_days_file_path), year)
     outputfiles = []
 
     outputfiles.append('Jahresprogramm_komplett_' + version + '.xlsx')

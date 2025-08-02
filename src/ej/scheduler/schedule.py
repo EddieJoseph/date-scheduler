@@ -79,11 +79,11 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
 
     # sampler = CombinedSampler([no_change_sampler,small_sampler,medium_sampler,large_sampler],[0.9,0.2,0.07,0.03])
     sampler = FilteredCombinedSampler([small_sampler, medium_sampler, large_sampler],
-                                      [0.6, 0.3, 0.1], 2025, holiday_file_path)
+                                      [0.6, 0.3, 0.1], year, holiday_file_path)
 
     type_spread_evaluator = TypeSpreadEvaluator()
-    holiday_evaluator = HolidayEvaluator(holiday_file_path)
-    jf_holiday_evaluator = JfHolidayEvaluator(holiday_file_path)
+    holiday_evaluator = HolidayEvaluator(holiday_file_path, year)
+    jf_holiday_evaluator = JfHolidayEvaluator(holiday_file_path, year)
     as_evaluator = AsCleanEvaluator(year)
     weekend_evaluator = WeekendEvaluator(year)
     week_clumping_evaluator = WeekClumpingEvaluator(year)
