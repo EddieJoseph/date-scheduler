@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from ej.scheduler.util.date_utils import convert_to_day_of_year, get_sundays_of_year, get_fridays_of_year
+from ej.scheduler.util.date_utils import convert_to_day_of_year, get_sundays_of_year, get_fridays_of_year, filter_events
 from .sampler import Sampler
 
 
@@ -17,7 +17,7 @@ class FilteredCombinedSampler(Sampler):
         self.weights = weights
         self.samplers = samplers
 
-        holidays = pd.read_excel(holiday_path)
+        holidays = filter_events(pd.read_excel(holiday_path),year)
 
         blocked_dates = []
 
