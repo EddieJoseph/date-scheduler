@@ -100,6 +100,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
     type_spread_evaluator.set_types(data_np)
     jf_holiday_evaluator.set_jf_type(data_np)
     assi_evaluator.set_assi_types(data_np)
+    same_day_evaluator.set_info_type(data_np)
 
     data_np.set_score(evaluate_candidate(data_np.get_np_data(), config))
     print('Initial score: ', data_np.get_score())
