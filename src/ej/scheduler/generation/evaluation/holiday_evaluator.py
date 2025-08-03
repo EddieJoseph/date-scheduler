@@ -22,7 +22,8 @@ class HolidayEvaluator(Evaluator):
                     self.blocked_dates.append(d)
 
     def evaluate(self, dates: ndarray) -> float:
-        return 0.8 ** len(np.intersect1d(dates[:,SamplingRows.DATE.value], self.blocked_dates))
+        dates_f = dates[dates[:,SamplingRows.FIXED.value] == 0]
+        return 0.8 ** len(np.intersect1d(dates_f[:,SamplingRows.DATE.value], self.blocked_dates))
 
     def get_name(self) -> str:
         return "HolidayEvaluator"

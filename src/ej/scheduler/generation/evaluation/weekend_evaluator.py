@@ -16,8 +16,9 @@ class WeekendEvaluator(Evaluator):
         self.weekend = np.concatenate((self.fridays, self.saturdays, self.sundays))
 
     def evaluate(self, dates):
-        sat_dates = dates[dates[:,SamplingRows.SAT.value]==1][:,SamplingRows.DATE.value]
-        not_sat_dates = dates[dates[:,SamplingRows.SAT.value]!=1][:,SamplingRows.DATE.value]
+        dates_f = dates[dates[:, SamplingRows.FIXED.value] == 0]
+        sat_dates = dates_f[dates_f[:,SamplingRows.SAT.value]==1][:,SamplingRows.DATE.value]
+        not_sat_dates = dates_f[dates_f[:,SamplingRows.SAT.value]!=1][:,SamplingRows.DATE.value]
         a = len(np.intersect1d(not_sat_dates, self.weekend))
         b = len(sat_dates) - len(np.intersect1d(sat_dates, self.saturdays))
 

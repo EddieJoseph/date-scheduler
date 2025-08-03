@@ -13,7 +13,8 @@ class MonthEvaluator(Evaluator):
 
     def evaluate(self, dates):
         filtered = dates[dates[:, SamplingRows.MONTH.value] != -1]
-        months = self.vectorized_get_month(filtered[:,SamplingRows.DATE.value])
+        dates_f = filtered[filtered[:, SamplingRows.FIXED.value] == 0]
+        months = self.vectorized_get_month(dates_f[:,SamplingRows.DATE.value])
         diff = filtered[:,SamplingRows.MONTH.value] - months
         violations = np.sum(np.abs(diff))
 
