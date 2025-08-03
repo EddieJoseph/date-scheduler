@@ -104,6 +104,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
 
     data_np.set_score(evaluate_candidate(data_np.get_np_data(), config))
     print('Initial score: ', data_np.get_score())
+    print_details(data_np, config)
     i = 1
 
     plot_results(data_np.get_score(), 0, plotter)
