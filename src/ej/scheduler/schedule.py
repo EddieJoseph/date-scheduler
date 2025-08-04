@@ -12,6 +12,7 @@ from ej.scheduler.generation.evaluation.month_evaluator import MonthEvaluator
 from ej.scheduler.generation.evaluation.same_day_evaluator import SameDayEvaluator
 from ej.scheduler.generation.evaluation.type_spread_evaluator import TypeSpreadEvaluator
 from ej.scheduler.generation.evaluation.week_clumping_evaluator import WeekClumpingEvaluator
+from ej.scheduler.generation.evaluation.week_day_evaluator import WeekDayEvaluator
 from ej.scheduler.generation.evaluation.weekend_evaluator import WeekendEvaluator
 from ej.scheduler.generation.sampling.filtered_combined_sampler import FilteredCombinedSampler
 from ej.scheduler.generation.sampling.no_change_date_sampler import NoChangeDateSampler
@@ -90,17 +91,21 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
     same_day_evaluator = SameDayEvaluator()
     month_evaluator = MonthEvaluator()
     assi_evaluator = AssiEvaluator()
+    week_day_evaluator = WeekDayEvaluator(year)
 
     data = SchedulerData.create_from(input_file_path)
     config = SchedulerConfig(year, [type_spread_evaluator, as_evaluator, holiday_evaluator, weekend_evaluator,
                                     same_day_evaluator, jf_holiday_evaluator, week_clumping_evaluator, month_evaluator,
-                                    assi_evaluator], sampler)
+                                    assi_evaluator, week_day_evaluator], sampler)
     data_np = SamplingDataHolder(data)
 
     type_spread_evaluator.set_types(data_np)
     jf_holiday_evaluator.set_jf_type(data_np)
     assi_evaluator.set_assi_types(data_np)
     same_day_evaluator.set_info_type(data_np)
+    week_day_evaluator.add_type("KP", data_np)
+    week_day_evaluator.add_type("F", data_np)
+    week_day_evaluator.add_type("ASI", data_np)
 
     data_np.set_score(evaluate_candidate(data_np.get_np_data(), config))
     print('Initial score: ', data_np.get_score())
