@@ -15,7 +15,8 @@ from ej.scheduler.util.file_generation_utils import filter_dates, enumerate_name
 from ej.scheduler.util.row_names import RowNames, Groups
 from ej.scheduler.util.scheduler_config import SchedulerData
 
-def generate_reports(version:str, old_versions:List[str], input_file_prefix:str, holiday_file_path:str, additional_days_file_path:str, year):
+def generate_reports(version: str, old_versions: List[str], input_file_prefix: str, holiday_file_path: str,
+                     additional_days_file_path: str, year, output_path:str):
     # version = '1.3'
     # old_versions = ['1.2', '1.1', '1.0']
 
@@ -41,7 +42,7 @@ def generate_reports(version:str, old_versions:List[str], input_file_prefix:str,
     convert_output(data, 'pdf/' + outputfiles[-1], year)
 
     outputfiles.append('Jahreskalender_komplett_' + version + '.pdf')
-    generate_cal(data, year, outputfiles[-1], 'Milizfeuerwehr Basel-Stadt Jahreskalender '+ str(year),
+    generate_cal(data, year, outputfiles[-1], 'Milizfeuerwehr Basel-Stadt Jahreskalender ' + str(year),
                  'Milizfeuerwehr Basel-Stadt', currentdate, version, holidays, additional_days)
 
     outputfiles.append('Jahresprogramm_komplett_' + version + '.ics')
@@ -50,10 +51,10 @@ def generate_reports(version:str, old_versions:List[str], input_file_prefix:str,
     data_kp = filter_dates(Groups.JF, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.JF, old_version), old_data))
     outputfiles.append('Jahresprogramm_JF_' + version + '.pdf')
-    generate_pdf('Jahresprogramm JF', 'Jugendfeuerwehr', version, currentdate,
+    generate_pdf('Jahresprogramm JF', 'Jugendfeuerwehr', year, version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_JF_' + version + '.pdf')
-    generate_cal(data_kp, year, outputfiles[-1], 'Jugendfeuerwehr Jahreskalender '+ str(year),
+    generate_cal(data_kp, year, outputfiles[-1], 'Jugendfeuerwehr Jahreskalender ' + str(year),
                  'Jugendfeuerwehr', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_JF_' + version + '.ics')
     generate_ics(data_kp, year, outputfiles[-1], version)
@@ -61,10 +62,10 @@ def generate_reports(version:str, old_versions:List[str], input_file_prefix:str,
     data_kp = filter_dates(Groups.RB, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.RB, old_version), old_data))
     outputfiles.append('Jahresprogramm_RB_' + version + '.pdf')
-    generate_pdf('Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', version, currentdate,
+    generate_pdf('Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', year, version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_RB_' + version + '.pdf')
-    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Riehen-Bettingen Jahreskalender '+ str(year),
+    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Riehen-Bettingen Jahreskalender ' + str(year),
                  'Feuerwehr Riehen-Bettingen', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_RB_' + version + '.ics')
     generate_ics(data_kp, year, outputfiles[-1], version)
@@ -72,10 +73,10 @@ def generate_reports(version:str, old_versions:List[str], input_file_prefix:str,
     data_kp = filter_dates(Groups.KB, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.KB, old_version), old_data))
     outputfiles.append('Jahresprogramm_KB_' + version + '.pdf')
-    generate_pdf('Jahresprogramm KB', 'Feuerwehr Kleinbasel', version, currentdate,
+    generate_pdf('Jahresprogramm KB', 'Feuerwehr Kleinbasel', year, version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_KB_' + version + '.pdf')
-    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Kleinbasel Jahreskalender '+ str(year),
+    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Kleinbasel Jahreskalender ' + str(year),
                  'Feuerwehr Kleinbasel', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_KB_' + version + '.ics')
     generate_ics(data_kp, year, outputfiles[-1], version)
@@ -83,10 +84,10 @@ def generate_reports(version:str, old_versions:List[str], input_file_prefix:str,
     data_kp = filter_dates(Groups.GB, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.GB, old_version), old_data))
     outputfiles.append('Jahresprogramm_GB_' + version + '.pdf')
-    generate_pdf('Jahresprogramm GB', 'Feuerwehr Grossbasel', version, currentdate,
+    generate_pdf('Jahresprogramm GB', 'Feuerwehr Grossbasel', year, version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_GB_' + version + '.pdf')
-    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Grossbasel Jahreskalender '+ str(year),
+    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Grossbasel Jahreskalender ' + str(year),
                  'Feuerwehr Grossbasel', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_GB_' + version + '.ics')
     generate_ics(data_kp, year, outputfiles[-1], version)
@@ -94,12 +95,13 @@ def generate_reports(version:str, old_versions:List[str], input_file_prefix:str,
     outputfiles.append('Änderungen_Jahresprogramm_' + version + '.pdf')
     generate_change_file(outputfiles[-1], data, version, old_data, old_versions, currentdate)
 
-    shutil.rmtree('pdf/Jahresprogramm/', ignore_errors=True)
-    shutil.rmtree('output/Jahresprogramm/', ignore_errors=True)
-    os.mkdir('pdf/Jahresprogramm')
+    shutil.rmtree('pdf/Jahresprogramm_'+version+'/', ignore_errors=True)
+    shutil.rmtree(output_path+'Jahresprogramm_'+version+'/', ignore_errors=True)
+    os.mkdir('pdf/Jahresprogramm_'+version+'/')
+
     for f in outputfiles:
-        shutil.move('pdf/' + f, 'pdf/Jahresprogramm/')
-    shutil.move('pdf/Jahresprogramm/', 'output/')
+        shutil.move('pdf/' + f, 'pdf/Jahresprogramm_'+version+'/')
+    shutil.move('pdf/Jahresprogramm_'+version+'/', output_path)
 
     tmp_files = ['outputrows.aux', 'outputrows.tex', 'outputrows.gen.log', 'outputrows.log', 'outputrows.out',
                  'outputrows.synctex.gz', 'addition.aux', 'addition.tex', 'addition.gen.log', 'addition.log',

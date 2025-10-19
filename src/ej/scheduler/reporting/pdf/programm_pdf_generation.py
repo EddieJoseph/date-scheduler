@@ -7,11 +7,11 @@ from ej.scheduler.util.row_names import RowNames
 from .change_table_generation import generate_change_table_tex
 
 
-def generate_tex(data):
+def generate_tex(data, year):
     with open('pdf/outputrows.tex', 'w') as output_file:
         i = 1
         for index, row in data.iterrows():
-            tmp = generate_row(row, i)
+            tmp = generate_row(row, i, year)
             output_file.writelines(tmp)
             i += 1
 
@@ -28,9 +28,9 @@ def generate_addition_tex(data, version, old_data, old_versions):
         output_file.write(addition)
 
 
-def generate_pdf(title, displaytitle, version, date, filename, data, old_data, old_versions):
+def generate_pdf(title, displaytitle, year, version, date, filename, data, old_data, old_versions):
     print('Generating {}'.format(title))
-    generate_tex(data)
+    generate_tex(data, year)
     with open('pdf/templates/Jahresprogramm_tmpl.tex', 'r') as template:
         with open('pdf/Jahresprogramm.tex', 'w') as output:
             for line in template:
@@ -38,6 +38,7 @@ def generate_pdf(title, displaytitle, version, date, filename, data, old_data, o
                 line = line.replace('$displaytitle', displaytitle)
                 line = line.replace('$version', version)
                 line = line.replace('$date', date)
+                line = line.replace('$year', str(year))
                 output.write(line)
 
     generate_addition_tex(data, version, old_data, old_versions)
@@ -50,11 +51,11 @@ def generate_pdf(title, displaytitle, version, date, filename, data, old_data, o
     print('saved to pdf/{}'.format(filename))
 
 
-def generate_row(series, index):
+def generate_row(series, index, year):
     # read file row_templ.tex
     with open('pdf/templates/row_tmpl.tex', 'r') as file:
         row = file.read()
-        date = convert_to_date(series[RowNames.DATE.value], 2025)
+        date = convert_to_date(series[RowNames.DATE.value], year)
         date.weekday()
         row = row.replace('$nr', str(index))
         row = row.replace('$date', date.strftime('%d.%m.%Y'))

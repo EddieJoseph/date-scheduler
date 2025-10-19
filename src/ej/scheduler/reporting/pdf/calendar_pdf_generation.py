@@ -127,6 +127,7 @@ def generate_cal(data, year, filename, title, displaytitle, date, version, holid
     output = output.replace('$displaytitle', translate_umlauts(displaytitle))
     output = output.replace('$version', version)
     output = output.replace('$date', translate_umlauts(date))
+    output = output.replace('$year', str(year))
 
     with open('pdf/Jahreskalender.tex', 'w') as cal_out:
         cal_out.write(output)

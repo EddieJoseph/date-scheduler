@@ -23,7 +23,7 @@ def parse_args():
     parser_generate.add_argument('-y', '--year', help='Year', type=int, required=True)
     parser_generate.add_argument('-v', '--version', help='Version', required=True)
     parser_generate.add_argument('-o', '--old-versions', help='Old versions', required=False)
-
+    parser_generate.add_argument('-p', '--output-path', help='Output Folder', required=True)
     return parser.parse_args()
 
 
@@ -54,4 +54,4 @@ if __name__ == '__main__':
         if args.old_versions:
             old_versions = args.old_versions.split(',')
 
-        generate_reports(args.version,old_versions, args.input, args.holidays, args.additional_dates, args.year)
+        generate_reports(args.version,old_versions, args.input, args.holidays, args.additional_dates, args.year, args.output_path)
