@@ -52,6 +52,6 @@ if __name__ == '__main__':
 
         old_versions = []
         if args.old_versions:
-            old_versions = args.old_versions.split(',')
+            old_versions = list(reversed(args.old_versions.split(',')))
 
         generate_reports(args.version,old_versions, args.input, args.holidays, args.additional_dates, args.year, args.output_path)
