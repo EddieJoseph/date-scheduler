@@ -65,7 +65,7 @@ def generate_change_table_row(date, time, name, group, theme, responsible):
     return row
 
 
-def generate_change_table_tex(data, version, old_data, old_versions):
+def generate_change_table_tex(data, version, old_data, old_versions, year):
     change_table_tex = ''
     current = data
     current_version = version
@@ -92,7 +92,7 @@ def generate_change_table_tex(data, version, old_data, old_versions):
         for j in range(0, 366):
             new_events_on_day = new[new[RowNames.DATE.value] == j]
             for event in new_events_on_day.iterrows():
-                e_date = new_text_style(convert_to_date(event[1][RowNames.DATE.value], 2025).strftime('%d.%m.%Y'))
+                e_date = new_text_style(convert_to_date(event[1][RowNames.DATE.value], year).strftime('%d.%m.%Y'))
                 e_time = new_text_style(translate_umlauts(event[1][RowNames.TIME.value]))
                 e_name = new_text_style(remove_numbers_at_end(translate_umlauts(event[1][RowNames.NAME.value])))
                 e_group = new_text_style(translate_umlauts(event[1][RowNames.CALLED_UP.value]))
@@ -102,7 +102,7 @@ def generate_change_table_tex(data, version, old_data, old_versions):
 
             changed_events_on_day = changed[changed[RowNames.DATE.value] == j]
             for event in changed_events_on_day.iterrows():
-                e_date = convert_to_date(event[1][RowNames.DATE.value], 2025).strftime('%d.%m.%Y')
+                e_date = convert_to_date(event[1][RowNames.DATE.value], year).strftime('%d.%m.%Y')
                 e_time = translate_umlauts(event[1][RowNames.TIME.value])
                 e_name = remove_numbers_at_end(translate_umlauts(event[1][RowNames.NAME.value]))
                 e_group = translate_umlauts(event[1][RowNames.CALLED_UP.value])
@@ -112,8 +112,8 @@ def generate_change_table_tex(data, version, old_data, old_versions):
                     RowNames.DATE.value] != event[1][RowNames.DATE.value]:
                     e_date = change_text(convert_to_date(
                         prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][
-                            RowNames.DATE.value], 2025).strftime('%d.%m.%Y'),
-                                         convert_to_date(event[1][RowNames.DATE.value], 2025).strftime('%d.%m.%Y'))
+                            RowNames.DATE.value], year).strftime('%d.%m.%Y'),
+                                         convert_to_date(event[1][RowNames.DATE.value], year).strftime('%d.%m.%Y'))
                 if prevoius.loc[prevoius[RowNames.ID.value] == event[1][RowNames.ID.value]].iloc[0][
                     RowNames.TIME.value] != event[1][RowNames.TIME.value]:
                     e_time = change_text(translate_umlauts(
@@ -144,7 +144,7 @@ def generate_change_table_tex(data, version, old_data, old_versions):
 
             missing_events_on_day = missing[missing[RowNames.DATE.value] == j]
             for event in missing_events_on_day.iterrows():
-                e_date = old_text_style(convert_to_date(event[1][RowNames.DATE.value], 2025).strftime('%d.%m.%Y'))
+                e_date = old_text_style(convert_to_date(event[1][RowNames.DATE.value], year).strftime('%d.%m.%Y'))
                 e_time = old_text_style(translate_umlauts(event[1][RowNames.TIME.value]))
                 e_name = old_text_style(remove_numbers_at_end(translate_umlauts(event[1][RowNames.NAME.value])))
                 e_group = old_text_style(translate_umlauts(event[1][RowNames.CALLED_UP.value]))
@@ -172,11 +172,11 @@ def load_change_document():
         return file.read()
 
 
-def generate_change_file(filename, data, version, old_data, old_versions, date):
+def generate_change_file(filename, data, version, old_data, old_versions, date, year):
     print('Generating {}'.format(filename))
     change_table_tex = load_change_document()
     change_table_tex = change_table_tex.replace('$change_table',
-                                                generate_change_table_tex(data, version, old_data, old_versions))
+                                                generate_change_table_tex(data, version, old_data, old_versions, year))
     change_table_tex = change_table_tex.replace('$date', date)
     change_table_tex = change_table_tex.replace('$version', version)
     with open('pdf/Änderungen_Jahresprogramm.tex', 'w') as output_file:

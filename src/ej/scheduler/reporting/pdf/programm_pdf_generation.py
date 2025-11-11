@@ -21,9 +21,9 @@ def load_addition():
         return file.read()
 
 
-def generate_addition_tex(data, version, old_data, old_versions):
+def generate_addition_tex(data, version, old_data, old_versions, year):
     addition = load_addition()
-    addition = addition.replace('$change_table', generate_change_table_tex(data, version, old_data, old_versions))
+    addition = addition.replace('$change_table', generate_change_table_tex(data, version, old_data, old_versions, year))
     with open('pdf/addition.tex', 'w') as output_file:
         output_file.write(addition)
 
@@ -41,7 +41,7 @@ def generate_pdf(title, displaytitle, year, version, date, filename, data, old_d
                 line = line.replace('$year', str(year))
                 output.write(line)
 
-    generate_addition_tex(data, version, old_data, old_versions)
+    generate_addition_tex(data, version, old_data, old_versions, year)
 
     cline = 'cd pdf && lualatex.exe -synctex=1 -interaction=nonstopmode Jahresprogramm.tex >> Jahresprogramm.gen.log'
     if os.system(str(cline)):

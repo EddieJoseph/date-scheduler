@@ -93,7 +93,7 @@ def generate_reports(version: str, old_versions: List[str], input_file_prefix: s
     generate_ics(data_kp, year, outputfiles[-1], version)
 
     outputfiles.append('Änderungen_Jahresprogramm_' + version + '.pdf')
-    generate_change_file(outputfiles[-1], data, version, old_data, old_versions, currentdate)
+    generate_change_file(outputfiles[-1], data, version, old_data, old_versions, currentdate, year)
 
     shutil.rmtree('pdf/Jahresprogramm_'+version+'/', ignore_errors=True)
     shutil.rmtree(output_path+'Jahresprogramm_'+version+'/', ignore_errors=True)
