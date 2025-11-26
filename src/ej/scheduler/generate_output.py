@@ -62,33 +62,33 @@ def generate_reports(version: str, old_versions: List[str], input_file_prefix: s
     data_kp = filter_dates(Groups.RB, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.RB, old_version), old_data))
     outputfiles.append('Jahresprogramm_RB_' + version + '.pdf')
-    generate_pdf('Jahresprogramm RB', 'Feuerwehr Riehen-Bettingen', year, version, currentdate,
+    generate_pdf('Jahresprogramm RB', 'Kompanie Riehen-Bettingen', year, version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_RB_' + version + '.pdf')
-    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Riehen-Bettingen Jahreskalender ' + str(year),
-                 'Feuerwehr Riehen-Bettingen', currentdate, version, holidays, additional_days)
+    generate_cal(data_kp, year, outputfiles[-1], 'Kompanie Riehen-Bettingen Jahreskalender ' + str(year),
+                 'Kompanie Riehen-Bettingen', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_RB_' + version + '.ics')
     generate_ics(data_kp, year, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.KB, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.KB, old_version), old_data))
     outputfiles.append('Jahresprogramm_KB_' + version + '.pdf')
-    generate_pdf('Jahresprogramm KB', 'Feuerwehr Kleinbasel', year, version, currentdate,
+    generate_pdf('Jahresprogramm KB', 'Zug Kleinbasel', year, version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_KB_' + version + '.pdf')
-    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Kleinbasel Jahreskalender ' + str(year),
-                 'Feuerwehr Kleinbasel', currentdate, version, holidays, additional_days)
+    generate_cal(data_kp, year, outputfiles[-1], 'Zug Kleinbasel Jahreskalender ' + str(year),
+                 'Zug Kleinbasel', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_KB_' + version + '.ics')
     generate_ics(data_kp, year, outputfiles[-1], version)
 
     data_kp = filter_dates(Groups.GB, data)
     old_data_kp = list(map(lambda old_version: filter_dates(Groups.GB, old_version), old_data))
     outputfiles.append('Jahresprogramm_GB_' + version + '.pdf')
-    generate_pdf('Jahresprogramm GB', 'Feuerwehr Grossbasel', year, version, currentdate,
+    generate_pdf('Jahresprogramm GB', 'Zug Grossbasel', year, version, currentdate,
                  outputfiles[-1], data_kp, old_data_kp, old_versions)
     outputfiles.append('Jahreskalender_GB_' + version + '.pdf')
-    generate_cal(data_kp, year, outputfiles[-1], 'Feuerwehr Grossbasel Jahreskalender ' + str(year),
-                 'Feuerwehr Grossbasel', currentdate, version, holidays, additional_days)
+    generate_cal(data_kp, year, outputfiles[-1], 'Zug Grossbasel Jahreskalender ' + str(year),
+                 'Zug Grossbasel', currentdate, version, holidays, additional_days)
     outputfiles.append('Jahresprogramm_GB_' + version + '.ics')
     generate_ics(data_kp, year, outputfiles[-1], version)
 
