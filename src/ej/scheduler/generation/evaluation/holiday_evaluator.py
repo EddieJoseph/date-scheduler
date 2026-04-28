@@ -12,18 +12,20 @@ class HolidayEvaluator(Evaluator):
     def __init__(self, path: str, year: int):
         holidays = pd.read_excel(path)
         holidays = filter_events(holidays, year)
-        self.blocked_dates = []
+        blocked = []
 
         for index, row in holidays.iterrows():
             if not row[HolidayRowNames.ONLY_JF.value]:
                 start = convert_to_day_of_year(row[HolidayRowNames.START.value])
                 end = convert_to_day_of_year(row[HolidayRowNames.END.value]) + 1
                 for d in range(start, end):
-                    self.blocked_dates.append(d)
+                    blocked.append(d)
+
+        self.blocked_dates = np.array(blocked, dtype=np.int16)
 
     def evaluate(self, dates: ndarray) -> float:
-        dates_f = dates[dates[:,SamplingRows.FIXED.value] == 0]
-        return 0.8 ** len(np.intersect1d(dates_f[:,SamplingRows.DATE.value], self.blocked_dates))
+        dates_f = dates[dates[:, SamplingRows.FIXED.value] == 0]
+        return 0.8 ** np.sum(np.isin(dates_f[:, SamplingRows.DATE.value], self.blocked_dates))
 
     def get_name(self) -> str:
         return "HolidayEvaluator"

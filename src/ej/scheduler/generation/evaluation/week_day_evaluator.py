@@ -22,7 +22,7 @@ class WeekDayEvaluator(Evaluator):
         return (day + self.offset) % 7
 
     def evaluate_type(self, dates: ndarray) -> float:
-        weekdays =  np.array([self.get_week_day(date) for date in dates[:, SamplingRows.DATE.value]])
+        weekdays = (dates[:, SamplingRows.DATE.value] + self.offset) % 7
         filtered_weekdays = weekdays[weekdays < 4]
         if len(filtered_weekdays)<1:
             return 1.0
