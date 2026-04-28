@@ -8,42 +8,45 @@ from ..sampling_data_holder import SamplingDataHolder, SamplingRows
 
 
 class WeekDayEvaluator(Evaluator):
-    
+
     def __init__(self, year: int):
         self.year = year
         first_day = datetime(year, 1, 1)
         self.offset = first_day.weekday()
         self.types = []
+        self.precomputed_subsets: list[np.ndarray] = []
 
-    def add_type(self,type_name:str, sampling_data_holder: SamplingDataHolder):
-        self.types.append(sampling_data_holder.map_types([type_name])[0])
+    def add_type(self, type_name: str, sampling_data_holder: SamplingDataHolder):
+        type_id = sampling_data_holder.map_types([type_name])[0]
+        self.types.append(type_id)
+        np_data = sampling_data_holder.get_np_data()
+        type_mask = np_data[:, SamplingRows.TYPE.value] == type_id
+        for group_col in (SamplingRows.RB.value, SamplingRows.KB.value, SamplingRows.GB.value):
+            indices = np.where(type_mask & (np_data[:, group_col] == 1))[0]
+            if len(indices) >= 1:
+                self.precomputed_subsets.append(indices)
 
     def get_week_day(self, day):
         return (day + self.offset) % 7
 
-    def evaluate_type(self, dates: ndarray) -> float:
-        weekdays = (dates[:, SamplingRows.DATE.value] + self.offset) % 7
+    def evaluate_type_indexed(self, date_values: ndarray) -> float:
+        weekdays = (date_values + self.offset) % 7
         filtered_weekdays = weekdays[weekdays < 4]
-        if len(filtered_weekdays)<1:
+        if len(filtered_weekdays) < 1:
             return 1.0
-        weekday_count = np.bincount(filtered_weekdays,minlength=4)
-        result = 1 / (1 + np.sqrt(np.var(weekday_count) / 10))
+        weekday_count = np.bincount(filtered_weekdays, minlength=4)
+        a, b, c, d = weekday_count
+        m = (a + b + c + d) * 0.25
+        var = ((a - m)**2 + (b - m)**2 + (c - m)**2 + (d - m)**2) * 0.25
+        result = 1 / (1 + np.sqrt(var / 10))
         return result
 
-    def evaluate(self, dates:ndarray) -> float:
+    def evaluate(self, dates: ndarray) -> float:
+        date_col = dates[:, SamplingRows.DATE.value]
         result = 1.0
-        for t in self.types:
-            dates_f = dates[dates[:,SamplingRows.TYPE.value] == t]
-            dates_rb = dates_f[dates_f[:,SamplingRows.RB.value] == 1]
-            result *= self.evaluate_type(dates_rb)
-            dates_kb = dates_f[dates_f[:,SamplingRows.KB.value] == 1]
-            result *= self.evaluate_type(dates_kb)
-            dates_gb = dates_f[dates_f[:,SamplingRows.GB.value] == 1]
-            result *= self.evaluate_type(dates_gb)
-
+        for indices in self.precomputed_subsets:
+            result *= self.evaluate_type_indexed(date_col[indices])
         return result
 
     def get_name(self) -> str:
         return "WeekDayEvaluator"
-        
-        

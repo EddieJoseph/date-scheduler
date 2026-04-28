@@ -20,22 +20,24 @@ class TypeSpreadEvaluator(Evaluator):
         self.types = sampling_data_holder.map_types(
             [t for t in sampling_data_holder.get_types() if t not in self.excluded_types]
         )
+        np_data = sampling_data_holder.get_np_data()
+        mask_gb = np_data[:, SamplingRows.GB.value] == 1
+        mask_kb = np_data[:, SamplingRows.KB.value] == 1
+        mask_rb = np_data[:, SamplingRows.RB.value] == 1
+        mask_ng = ~mask_gb & ~mask_kb & ~mask_rb
+        self.precomputed_subsets: list[np.ndarray] = []
+        for t in self.types:
+            mask_type = np_data[:, SamplingRows.TYPE.value] == t
+            for group_mask in (mask_gb, mask_kb, mask_rb, mask_ng):
+                indices = np.where(mask_type & group_mask)[0]
+                if len(indices) >= 2:
+                    self.precomputed_subsets.append(indices)
 
     def evaluate(self, candidate):
-        result = 1
-        mask_gb = candidate[:, SamplingRows.GB.value] == 1
-        mask_kb = candidate[:, SamplingRows.KB.value] == 1
-        mask_rb = candidate[:, SamplingRows.RB.value] == 1
-        mask_ng = ~mask_gb & ~mask_kb & ~mask_rb
-
         dates = candidate[:, SamplingRows.DATE.value]
-
-        for t in self.types:
-            mask_type = candidate[:, SamplingRows.TYPE.value] == t
-            result *= (generate_score_np(dates[mask_type & mask_gb])
-                       * generate_score_np(dates[mask_type & mask_kb])
-                       * generate_score_np(dates[mask_type & mask_rb])
-                       * generate_score_np(dates[mask_type & mask_ng]))
+        result = 1.0
+        for indices in self.precomputed_subsets:
+            result *= generate_score_np(dates[indices])
         return result
 
     def get_name(self) -> str:

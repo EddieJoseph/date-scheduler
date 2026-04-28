@@ -127,3 +127,23 @@ Overall total composite: 5293.7 ms → 2992.9 ms (−43%).
 | HolidayEvaluator | 50.9 | 1.9% |
 | SameDayEvaluator | 58.7 | 2.2% |
 | **Total composite** | **2992.9** | |
+
+## After Step 8: TypeSpreadEvaluator + WeekDayEvaluator (precomputed index arrays)
+
+TypeSpreadEvaluator: 1333.5 ms → 1215.5 ms (−9%). Modest gain — boolean mask elimination helps but the per-type loop with `np.diff`+`np.var` still dominates.
+WeekDayEvaluator: 683.0 ms → 216.6 ms (−68%). Large gain — eliminating type/group mask creation per call plus inline variance formula eliminates most overhead.
+Overall total composite: 2992.9 ms → 2677.3 ms (−11%).
+
+| Evaluator | Time (ms) | Share |
+|---|---|---|
+| TypeSpreadEvaluator | 1215.5 | 58.3% |
+| WeekDayEvaluator | 216.6 | 10.4% |
+| WeekClumpingEvaluator | 63.6 | 3.0% |
+| AssiEvaluator | 144.1 | 6.9% |
+| WeekendEvaluator | 145.9 | 7.0% |
+| MonthEvaluator | 68.1 | 3.3% |
+| AsCleanEvaluator | 35.8 | 1.7% |
+| JfHolidayEvaluator | 62.1 | 3.0% |
+| HolidayEvaluator | 49.7 | 2.4% |
+| SameDayEvaluator | 85.0 | 4.1% |
+| **Total composite** | **2677.3** | |
