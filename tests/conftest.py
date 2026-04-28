@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ej.scheduler.generation.sampling_data_holder import SamplingRows
+from ej.scheduler.generation.sampling_data_holder import SamplingDataHolder, SamplingRows
 from ej.scheduler.util.row_names import RowNames
 from ej.scheduler.util.scheduler_config import SchedulerData
 
@@ -53,4 +53,11 @@ def make_scheduler_data():
         df = pd.DataFrame(defaults).reset_index(drop=True)
         df[RowNames.DATE.value] = df[RowNames.DATE.value].astype(np.int64)
         return SchedulerData(df, 0.0)
+    return _make
+
+
+@pytest.fixture
+def make_sdh(make_scheduler_data):
+    def _make(n=2, **kwargs):
+        return SamplingDataHolder(make_scheduler_data(n=n, **kwargs))
     return _make
