@@ -1,6 +1,5 @@
 import multiprocessing
 import sys
-import time
 
 import numpy as np
 
@@ -118,32 +117,32 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
     data_np = batch_iterations(data_np, 2500, 5, False, config, plotter, thread_nr, 'starting set ' + str(i))
     sd = data_np.get_scheduler_data()
     sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', 2025)
+    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
     i = i + 1
 
     data_np = batch_iterations(data_np, 5000, 20, True, config, plotter, thread_nr, 'starting set ' + str(i))
     sd = data_np.get_scheduler_data()
     sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', 2025)
+    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
     i = i + 1
 
     data_np = batch_iterations(data_np, 15000, 20, True, config, plotter, thread_nr, 'starting set ' + str(i))
     sd = data_np.get_scheduler_data()
     sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', 2025)
+    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
     i = i + 1
 
     data_np = batch_iterations(data_np, 25000, 20, True, config, plotter, thread_nr, 'starting set ' + str(i))
     sd = data_np.get_scheduler_data()
     sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', 2025)
+    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
     i = i + 1
 
     for xyz in range(0, 1000):
         data_np = batch_iterations(data_np, 50000, 5, True, config, plotter, thread_nr, 'starting set ' + str(i))
         sd = data_np.get_scheduler_data()
         sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', 2025)
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
         i = i + 1
 
     sys.exit(0)
