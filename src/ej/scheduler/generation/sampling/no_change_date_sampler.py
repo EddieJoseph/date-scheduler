@@ -1,8 +1,8 @@
-from datetime import datetime
+import numpy as np
 
 from .sampler import Sampler
 
 
 class NoChangeDateSampler(Sampler):
-    def sample(self, date: datetime.date) -> datetime.date:
-        return date
+    def sample(self, candidate: np.ndarray) -> tuple[np.ndarray, set[int]]:
+        return candidate, set()

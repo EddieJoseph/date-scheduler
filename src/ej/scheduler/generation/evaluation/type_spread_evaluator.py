@@ -40,5 +40,20 @@ class TypeSpreadEvaluator(Evaluator):
             result *= generate_score_np(dates[indices])
         return result
 
+    def evaluate_incremental(self, candidate: np.ndarray, changed_indices: set[int], cache: dict[int, float]) -> tuple[float, dict[int, float]]:
+        dates = candidate[:, SamplingRows.DATE.value]
+        result = 1.0
+        new_cache = {}
+        for i, indices in enumerate(self.precomputed_subsets):
+            if any(idx in changed_indices for idx in indices):
+                score = generate_score_np(dates[indices])
+            elif i in cache:
+                score = cache[i]
+            else:
+                score = generate_score_np(dates[indices])
+            new_cache[i] = score
+            result *= score
+        return result, new_cache
+
     def get_name(self) -> str:
         return "TypeSpreadEvaluator"

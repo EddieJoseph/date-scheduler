@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 
+from ej.scheduler.generation.sampling_data_holder import SamplingRows, change_date
 from ej.scheduler.util.date_utils import convert_to_day_of_year, get_sundays_of_year, get_fridays_of_year, filter_events
 from .sampler import Sampler
 
@@ -30,10 +31,19 @@ class FilteredCombinedSampler(Sampler):
 
         self.blocked_dates = np.unique(np.concatenate([blocked_dates, get_sundays_of_year(year), get_fridays_of_year(year)]))
 
-    def sample(self, date):
+    def sample(self, candidate: np.ndarray) -> tuple[np.ndarray, set[int]]:
+        not_fixed = np.where(candidate[:, SamplingRows.FIXED.value] == 0)[0]
+        if len(not_fixed) == 0:
+            return candidate, set()
+        idx = int(np.random.choice(not_fixed))
+        original_date = int(candidate[idx, SamplingRows.DATE.value])
+
         sampler = np.random.choice(self.samplers, p=self.weights)
-        new_date = sampler.sample(date)
+        new_date = sampler._sample_date(original_date)
         while new_date in self.blocked_dates:
             sampler = np.random.choice(self.samplers, p=self.weights)
-            new_date = sampler.sample(date)
-        return new_date
+            new_date = sampler._sample_date(original_date)
+
+        new_candidate = candidate.copy()
+        change_date(new_candidate, idx, new_date)
+        return new_candidate, {idx}

@@ -154,3 +154,31 @@ def test_evaluator_performance(capsys):
             print(f"  {name:<30s}  {t * 1000:8.1f} ms  ({100 * t / total_individual:5.1f}%)")
         print(f"  {'--- sum of individuals':<30s}  {total_individual * 1000:8.1f} ms")
         print(f"  {'Total composite loop':<30s}  {total_composite * 1000:8.1f} ms")
+
+    # Incremental evaluation benchmark: simulate 1 changed row per step
+    from ej.scheduler.generation.evaluation.type_spread_evaluator import TypeSpreadEvaluator
+    from ej.scheduler.generation.evaluation.week_day_evaluator import WeekDayEvaluator
+
+    type_spread_ev = next(e for e in evaluators if isinstance(e, TypeSpreadEvaluator))
+    week_day_ev = next(e for e in evaluators if isinstance(e, WeekDayEvaluator))
+
+    changed = {5}  # one changed row
+    cache_ts: dict = {}
+    cache_wd: dict = {}
+
+    start = time.perf_counter()
+    for _ in range(ITERATIONS):
+        _, cache_ts = type_spread_ev.evaluate_incremental(candidate, changed, cache_ts)
+    t_ts_inc = time.perf_counter() - start
+
+    start = time.perf_counter()
+    for _ in range(ITERATIONS):
+        _, cache_wd = week_day_ev.evaluate_incremental(candidate, changed, cache_wd)
+    t_wd_inc = time.perf_counter() - start
+
+    with capsys.disabled():
+        print(f"\n--- Incremental Evaluation ({ITERATIONS} iterations, 1 changed row) ---")
+        print(f"  {'TypeSpreadEvaluator full':<35s}  {timings['TypeSpreadEvaluator'] * 1000:8.1f} ms")
+        print(f"  {'TypeSpreadEvaluator incremental':<35s}  {t_ts_inc * 1000:8.1f} ms  ({timings['TypeSpreadEvaluator'] / t_ts_inc:.1f}x speedup)")
+        print(f"  {'WeekDayEvaluator full':<35s}  {timings['WeekDayEvaluator'] * 1000:8.1f} ms")
+        print(f"  {'WeekDayEvaluator incremental':<35s}  {t_wd_inc * 1000:8.1f} ms  ({timings['WeekDayEvaluator'] / t_wd_inc:.1f}x speedup)")

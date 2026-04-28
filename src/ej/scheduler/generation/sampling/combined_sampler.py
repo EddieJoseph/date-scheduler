@@ -13,6 +13,6 @@ class CombinedSampler(Sampler):
         self.weights = weights
         self.samplers = samplers
 
-    def sample(self, date):
+    def sample(self, candidate: np.ndarray) -> tuple[np.ndarray, set[int]]:
         sampler = np.random.choice(self.samplers, p=self.weights)
-        return sampler.sample(date)
+        return sampler.sample(candidate)

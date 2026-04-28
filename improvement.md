@@ -147,3 +147,19 @@ Overall total composite: 2992.9 ms → 2677.3 ms (−11%).
 | HolidayEvaluator | 49.7 | 2.4% |
 | SameDayEvaluator | 85.0 | 4.1% |
 | **Total composite** | **2677.3** | |
+
+## After Step 9: Incremental evaluation for TypeSpreadEvaluator + WeekDayEvaluator
+
+Sampler interface changed to per-array (`sample(candidate) -> (candidate, changed_indices)`). Evaluators now implement `evaluate_incremental()`, reusing cached per-subset scores for subsets whose row indices don't overlap `changed_indices`.
+
+TypeSpreadEvaluator: 1192 ms → 165 ms per 5000 calls (**7.2x speedup**, 1 changed row per step).
+WeekDayEvaluator: 222 ms → 65 ms per 5000 calls (**3.4x speedup**, 1 changed row per step).
+
+The two dominant evaluators together drop from ~1415 ms to ~230 ms — an ~6x composite reduction on those two alone.
+
+All other evaluators fall back to `evaluate()` unchanged (base class default).
+
+| Evaluator | Full eval (ms) | Incremental (ms) | Speedup |
+|---|---|---|---|
+| TypeSpreadEvaluator | 1192 | 165 | 7.2× |
+| WeekDayEvaluator | 222 | 65 | 3.4× |
