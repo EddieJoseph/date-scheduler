@@ -1,4 +1,6 @@
+import json
 import multiprocessing
+import os
 import sys
 
 import numpy as np
@@ -22,6 +24,20 @@ from ej.scheduler.generation.sampling_data_holder import SamplingDataHolder
 from ej.scheduler.plotter import Plotter
 from ej.scheduler.reporting.excel.convert_output import convert_output
 from ej.scheduler.util.scheduler_config import SchedulerData, SchedulerConfig
+
+
+def save_state(prefix: str, last_stage: int, last_phase: int):
+    with open(prefix + '_state.json', 'w') as f:
+        json.dump({'last_stage': last_stage, 'last_phase': last_phase}, f)
+
+
+def load_state(prefix: str):
+    try:
+        with open(prefix + '_state.json', 'r') as f:
+            state = json.load(f)
+            return state['last_stage'], state['last_phase']
+    except Exception:
+        return None
 
 
 def worker(td):
@@ -69,7 +85,7 @@ def batch_iterations(data_np: SamplingDataHolder, iterations, repeat, limit_samp
 
 
 def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: str, year: int,
-             random_seed: int | None = None, thread_nr: int = 32):
+             random_seed: int | None = None, thread_nr: int = 32, resume: bool = False):
     if (random_seed is not None):
         np.random.seed(random_seed)
     plotter = Plotter()
@@ -94,7 +110,22 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
     assi_evaluator = AssiEvaluator()
     week_day_evaluator = WeekDayEvaluator(year)
 
-    data = SchedulerData.create_from(input_file_path)
+    i = 1
+    start_phase = 1
+    actual_input = input_file_path
+
+    if resume:
+        state = load_state(output_file_prefix)
+        if state is not None:
+            last_stage, last_phase = state
+            xlsx_path = output_file_prefix + str(last_stage) + '.xlsx'
+            if os.path.exists(xlsx_path):
+                actual_input = xlsx_path
+                i = last_stage + 1
+                start_phase = last_phase + 1
+                print(f'Resuming from stage {last_stage} (phase {last_phase})')
+
+    data = SchedulerData.create_from(actual_input)
     config = SchedulerConfig(year, [type_spread_evaluator, as_evaluator, holiday_evaluator, weekend_evaluator,
                                     same_day_evaluator, jf_holiday_evaluator, week_clumping_evaluator, month_evaluator,
                                     assi_evaluator, week_day_evaluator], sampler)
@@ -111,38 +142,46 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
     data_np.set_score(evaluate_candidate(data_np.get_np_data(), config))
     print('Initial score: ', data_np.get_score())
     print_details(data_np, config)
-    i = 1
 
-    plot_results(data_np.get_score(), 0, plotter)
-    data_np = batch_iterations(data_np, 2500, 5, False, config, plotter, thread_nr, 'starting set ' + str(i))
-    sd = data_np.get_scheduler_data()
-    sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
-    i = i + 1
+    if start_phase <= 1:
+        plot_results(data_np.get_score(), 0, plotter)
+        data_np = batch_iterations(data_np, 2500, 5, False, config, plotter, thread_nr, 'starting set ' + str(i))
+        sd = data_np.get_scheduler_data()
+        sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
+        save_state(output_file_prefix, i, 1)
+        i += 1
 
-    data_np = batch_iterations(data_np, 5000, 20, True, config, plotter, thread_nr, 'starting set ' + str(i))
-    sd = data_np.get_scheduler_data()
-    sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
-    i = i + 1
+    if start_phase <= 2:
+        data_np = batch_iterations(data_np, 5000, 25, True, config, plotter, thread_nr, 'starting set ' + str(i))
+        sd = data_np.get_scheduler_data()
+        sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
+        save_state(output_file_prefix, i, 2)
+        i += 1
 
-    data_np = batch_iterations(data_np, 15000, 20, True, config, plotter, thread_nr, 'starting set ' + str(i))
-    sd = data_np.get_scheduler_data()
-    sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
-    i = i + 1
+    if start_phase <= 3:
+        data_np = batch_iterations(data_np, 15000, 20, True, config, plotter, thread_nr, 'starting set ' + str(i))
+        sd = data_np.get_scheduler_data()
+        sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
+        save_state(output_file_prefix, i, 3)
+        i += 1
 
-    data_np = batch_iterations(data_np, 25000, 20, True, config, plotter, thread_nr, 'starting set ' + str(i))
-    sd = data_np.get_scheduler_data()
-    sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-    convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
-    i = i + 1
+    if start_phase <= 4:
+        data_np = batch_iterations(data_np, 25000, 20, True, config, plotter, thread_nr, 'starting set ' + str(i))
+        sd = data_np.get_scheduler_data()
+        sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
+        save_state(output_file_prefix, i, 4)
+        i += 1
 
     for xyz in range(0, 1000):
         data_np = batch_iterations(data_np, 50000, 5, True, config, plotter, thread_nr, 'starting set ' + str(i))
         sd = data_np.get_scheduler_data()
         sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
         convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
-        i = i + 1
+        save_state(output_file_prefix, i, 5)
+        i += 1
 
     sys.exit(0)

@@ -1,4 +1,6 @@
 import argparse
+import glob
+import os
 
 from ej.scheduler.evaluate import evaluate_schedule
 from ej.scheduler.generate_output import generate_reports
@@ -15,7 +17,12 @@ def parse_args():
     parser_optimize.add_argument('-y', '--year', help='Year', type=int, required=True)
     parser_optimize.add_argument('-o','--output', help='Output file prefix', default='data')
     parser_optimize.add_argument('-H', "--holidays", help="Holidays file", required=True)
-    parser_optimize.add_argument( "--random-seed", help="Holidays file", type=int)
+    parser_optimize.add_argument("--random-seed", help="Holidays file", type=int)
+    parser_optimize.add_argument("--resume", action="store_true",
+                                 help="Resume from last checkpoint; -i is ignored when a checkpoint is found")
+
+    parser_clear = subparser.add_parser('clear', help='Delete all output files for a given prefix')
+    parser_clear.add_argument('-o', '--output', help='Output file prefix', required=True)
 
     parser_evaluate = subparser.add_parser('evaluate', help='Evaluate a schedule')
     parser_evaluate.add_argument('-i', '--input', help='Input file', required=True)
@@ -47,9 +54,17 @@ if __name__ == '__main__':
         print(args.holidays)
         print(args.random_seed)
         if args.random_seed:
-            optimize(args.input, args.holidays, args.output, args.year, args.random_seed)
+            optimize(args.input, args.holidays, args.output, args.year, args.random_seed, resume=args.resume)
         else:
-            optimize(args.input, args.holidays, args.output, args.year)
+            optimize(args.input, args.holidays, args.output, args.year, resume=args.resume)
+
+    elif args.command == 'clear':
+        prefix = args.output
+        for f in glob.glob(prefix + '*.xlsx'):
+            os.remove(f)
+        state_file = prefix + '_state.json'
+        if os.path.exists(state_file):
+            os.remove(state_file)
 
     elif(args.command == 'generate'):
         print("Starting report generation")
