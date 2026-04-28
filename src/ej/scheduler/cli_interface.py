@@ -1,5 +1,6 @@
 import argparse
 
+from ej.scheduler.evaluate import evaluate_schedule
 from ej.scheduler.generate_output import generate_reports
 from ej.scheduler.schedule import optimize
 
@@ -16,6 +17,11 @@ def parse_args():
     parser_optimize.add_argument('-H', "--holidays", help="Holidays file", required=True)
     parser_optimize.add_argument( "--random-seed", help="Holidays file", type=int)
 
+    parser_evaluate = subparser.add_parser('evaluate', help='Evaluate a schedule')
+    parser_evaluate.add_argument('-i', '--input', help='Input file', required=True)
+    parser_evaluate.add_argument('-y', '--year', help='Year', type=int, required=True)
+    parser_evaluate.add_argument('-H', '--holidays', help='Holidays file', required=True)
+
     parser_generate = subparser.add_parser('generate', help='Generate report')
     parser_generate.add_argument('-i', '--input', help='Input file prefix', required=True)
     parser_generate.add_argument('-H', "--holidays", help="Holidays file", required=True)
@@ -30,7 +36,10 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
-    if(args.command == 'optimize'):
+    if args.command == 'evaluate':
+        evaluate_schedule(args.input, args.holidays, args.year)
+
+    elif(args.command == 'optimize'):
         print("Starting optimization")
         print(args.input)
         print(args.year)
