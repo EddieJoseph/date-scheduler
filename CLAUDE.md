@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - [Project Architecture](doc/project_architecture.md) — Data flow, key classes (SchedulerData, SamplingDataHolder), source layout
 - [Project Optimization Engine](doc/project_optimization_engine.md) — MCMC algorithm, 10 evaluators, 5 samplers, staged strategy
 - [Project Output Generation](doc/project_output_generation.md) — Phase 2: Excel, PDF (LaTeX templates), ICS, change-diff PDF
-- [Project Testing](doc/project_testing.md) — Single test file, 7 tests on SamplingDataHolder, coverage gaps
+- [Project Testing](doc/project_testing.md) — Test approach, structure, fixtures, coverage status
 - [Project Setup and Dependencies](doc/project_setup.md) — Python 3.11, requirements.txt, lualatex system dep, CLI invocation
 
 
@@ -25,7 +25,7 @@ python -m ej.scheduler.cli_interface optimize -i <input_file> -y <year> -o <outp
 python -m ej.scheduler.cli_interface generate -i <input_prefix> -H <holidays_file> -a <additional_dates_file> -y <year> -v <version> -o <old_versions> -p <output_path>
 
 # Run tests
-python -m pytest src/ej/scheduler/generation/test_sampling_data_holder.py
+python -m pytest
 ```
 
 PDF generation requires `lualatex.exe` to be on PATH.
