@@ -3,3 +3,4 @@ output/
 .idea/
 __pycache__/
 score.png
+.mcp.json
