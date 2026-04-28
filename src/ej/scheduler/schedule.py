@@ -110,7 +110,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
     assi_evaluator = AssiEvaluator()
     week_day_evaluator = WeekDayEvaluator(year)
 
-    i = 1
+    stage = 1
     start_phase = 1
     actual_input = input_file_path
 
@@ -121,7 +121,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
             xlsx_path = output_file_prefix + str(last_stage) + '.xlsx'
             if os.path.exists(xlsx_path):
                 actual_input = xlsx_path
-                i = last_stage + 1
+                stage = last_stage + 1
                 start_phase = last_phase + 1
                 print(f'Resuming from stage {last_stage} (phase {last_phase})')
 
@@ -145,43 +145,43 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
 
     if start_phase <= 1:
         plot_results(data_np.get_score(), 0, plotter)
-        data_np = batch_iterations(data_np, 2500, 5, False, config, plotter, thread_nr, 'starting set ' + str(i))
+        data_np = batch_iterations(data_np, 2500, 5, False, config, plotter, thread_nr, 'starting set ' + str(stage))
         sd = data_np.get_scheduler_data()
-        sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
-        save_state(output_file_prefix, i, 1)
-        i += 1
+        sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(stage) + '.xlsx', year)
+        save_state(output_file_prefix, stage, 1)
+        stage += 1
 
     if start_phase <= 2:
-        data_np = batch_iterations(data_np, 5000, 25, True, config, plotter, thread_nr, 'starting set ' + str(i))
+        data_np = batch_iterations(data_np, 5000, 25, True, config, plotter, thread_nr, 'starting set ' + str(stage))
         sd = data_np.get_scheduler_data()
-        sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
-        save_state(output_file_prefix, i, 2)
-        i += 1
+        sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(stage) + '.xlsx', year)
+        save_state(output_file_prefix, stage, 2)
+        stage += 1
 
     if start_phase <= 3:
-        data_np = batch_iterations(data_np, 15000, 20, True, config, plotter, thread_nr, 'starting set ' + str(i))
+        data_np = batch_iterations(data_np, 15000, 20, True, config, plotter, thread_nr, 'starting set ' + str(stage))
         sd = data_np.get_scheduler_data()
-        sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
-        save_state(output_file_prefix, i, 3)
-        i += 1
+        sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(stage) + '.xlsx', year)
+        save_state(output_file_prefix, stage, 3)
+        stage += 1
 
     if start_phase <= 4:
-        data_np = batch_iterations(data_np, 25000, 20, True, config, plotter, thread_nr, 'starting set ' + str(i))
+        data_np = batch_iterations(data_np, 25000, 20, True, config, plotter, thread_nr, 'starting set ' + str(stage))
         sd = data_np.get_scheduler_data()
-        sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
-        save_state(output_file_prefix, i, 4)
-        i += 1
+        sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(stage) + '.xlsx', year)
+        save_state(output_file_prefix, stage, 4)
+        stage += 1
 
     for xyz in range(0, 1000):
-        data_np = batch_iterations(data_np, 50000, 5, True, config, plotter, thread_nr, 'starting set ' + str(i))
+        data_np = batch_iterations(data_np, 50000, 5, True, config, plotter, thread_nr, 'starting set ' + str(stage))
         sd = data_np.get_scheduler_data()
-        sd.save_to(year, output_file_prefix + str(i) + '.xlsx')
-        convert_output(sd.dates, output_file_prefix + '_pretty' + str(i) + '.xlsx', year)
-        save_state(output_file_prefix, i, 5)
-        i += 1
+        sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(stage) + '.xlsx', year)
+        save_state(output_file_prefix, stage, 5)
+        stage += 1
 
     sys.exit(0)
