@@ -145,7 +145,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
 
     if start_phase <= 1:
         plot_results(data_np.get_score(), 0, plotter)
-        data_np = batch_iterations(data_np, 2500, 5, False, config, plotter, thread_nr, 'starting set ' + str(stage))
+        data_np = batch_iterations(data_np, 2500, 50, False, config, plotter, thread_nr, 'starting set ' + str(stage))
         sd = data_np.get_scheduler_data()
         sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
         convert_output(sd.dates, output_file_prefix + '_pretty' + str(stage) + '.xlsx', year)
