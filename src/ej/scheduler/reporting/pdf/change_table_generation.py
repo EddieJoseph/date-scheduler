@@ -32,11 +32,11 @@ def text_equals(date_1, date_2, row):
 
 
 def new_text_style(text):
-    return '\color{OliveGreen}' + text
+    return '\\color{OliveGreen}' + text
 
 
 def old_text_style(text):
-    return '\color{BrickRed}\sout{' + text + '}'
+    return '\\color{BrickRed}\\sout{' + text + '}'
 
 
 def load_change_table_start():
