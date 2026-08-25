@@ -64,18 +64,34 @@ def plot_results(score, iterations, plotter, enabled: bool = True):
 
 
 def batch_iterations(data_np: SamplingDataHolder, iterations, repeat, limit_sampling, config, plotter, thread_nr,
-                     log_msg=None, multithreaded=True, cycles=True):
+                     log_msg=None, multithreaded=True, cycles=True, improveOnly=False):
     if log_msg is not None:
         print(log_msg)
     for i in range(repeat):
         if not multithreaded:
-            data_np = iterate(data_np, config, iterations, limit_sampling)
+            if not improveOnly:
+                data_np = iterate(data_np, config, iterations, limit_sampling)
+            else:
+                initial_data = data_np.get_np_data()
+                initial_score = data_np.get_score()
+                data_np = iterate(data_np, config, iterations, limit_sampling)
+                if initial_score> data_np.get_score():
+                    data_np.set_np_data(initial_data)
+                    data_np.set_score(initial_score)
             if not cycles:
                 plot_results(data_np.get_score(), iterations, plotter)
             else:
                 plot_results(data_np.get_score(), 1, plotter)
         else:
-            data_np = multithreaded_iteration(data_np, config, thread_nr, iterations, limit_sampling)
+            if not improveOnly:
+                data_np = multithreaded_iteration(data_np, config, thread_nr, iterations, limit_sampling)
+            else:
+                initial_data = data_np.get_np_data()
+                initial_score = data_np.get_score()
+                data_np = multithreaded_iteration(data_np, config, thread_nr, iterations, limit_sampling)
+                if initial_score> data_np.get_score():
+                    data_np.set_np_data(initial_data)
+                    data_np.set_score(initial_score)
             if not cycles:
                 plot_results(data_np.get_score(), iterations * thread_nr, plotter)
             else:
@@ -129,7 +145,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
     config = SchedulerConfig(year, [type_spread_evaluator, as_evaluator, holiday_evaluator, weekend_evaluator,
                                     same_day_evaluator, jf_holiday_evaluator, week_clumping_evaluator, month_evaluator,
                                     assi_evaluator, week_day_evaluator], sampler)
-    data_np = SamplingDataHolder(data)
+    data_np: SamplingDataHolder = SamplingDataHolder(data)
 
     type_spread_evaluator.set_types(data_np)
     jf_holiday_evaluator.set_jf_type(data_np)
@@ -177,7 +193,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
         stage += 1
 
     for xyz in range(0, 1000):
-        data_np = batch_iterations(data_np, 50000, 5, True, config, plotter, thread_nr, 'starting set ' + str(stage))
+        data_np = batch_iterations(data_np, 100000, 5, True, config, plotter, thread_nr, 'starting set ' + str(stage), improveOnly=True)
         sd = data_np.get_scheduler_data()
         sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
         convert_output(sd.dates, output_file_prefix + '_pretty' + str(stage) + '.xlsx', year)
