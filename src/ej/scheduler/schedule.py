@@ -127,7 +127,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
     week_day_evaluator = WeekDayEvaluator(year)
 
     stage = 1
-    start_phase = 1
+    start_phase = 0
     actual_input = input_file_path
 
     if resume:
@@ -139,7 +139,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
                 actual_input = xlsx_path
                 stage = last_stage + 1
                 start_phase = last_phase + 1
-                print(f'Resuming from stage {last_stage} (phase {last_phase})')
+                print(f'Resuming from stage {last_stage} (phase {last_phase}). Loading from {xlsx_path}')
 
     data = SchedulerData.create_from(actual_input)
     config = SchedulerConfig(year, [type_spread_evaluator, as_evaluator, holiday_evaluator, weekend_evaluator,
@@ -159,7 +159,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
     print('Initial score: ', data_np.get_score())
     print_details(data_np, config)
 
-    if start_phase <= 1:
+    if start_phase < 1:
         plot_results(data_np.get_score(), 0, plotter)
         data_np = batch_iterations(data_np, 2500, 50, False, config, plotter, thread_nr, 'starting set ' + str(stage))
         sd = data_np.get_scheduler_data()
@@ -168,7 +168,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
         save_state(output_file_prefix, stage, 1)
         stage += 1
 
-    if start_phase <= 2:
+    if start_phase < 2:
         data_np = batch_iterations(data_np, 5000, 25, True, config, plotter, thread_nr, 'starting set ' + str(stage))
         sd = data_np.get_scheduler_data()
         sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
@@ -176,7 +176,7 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
         save_state(output_file_prefix, stage, 2)
         stage += 1
 
-    if start_phase <= 3:
+    if start_phase < 3:
         data_np = batch_iterations(data_np, 15000, 20, True, config, plotter, thread_nr, 'starting set ' + str(stage))
         sd = data_np.get_scheduler_data()
         sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
@@ -184,20 +184,28 @@ def optimize(input_file_path: str, holiday_file_path: str, output_file_prefix: s
         save_state(output_file_prefix, stage, 3)
         stage += 1
 
-    if start_phase <= 4:
-        data_np = batch_iterations(data_np, 25000, 20, True, config, plotter, thread_nr, 'starting set ' + str(stage))
+    if start_phase < 4:
+        data_np = batch_iterations(data_np, 25000, 30, True, config, plotter, thread_nr, 'starting set ' + str(stage))
         sd = data_np.get_scheduler_data()
         sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
         convert_output(sd.dates, output_file_prefix + '_pretty' + str(stage) + '.xlsx', year)
         save_state(output_file_prefix, stage, 4)
         stage += 1
 
-    for xyz in range(0, 1000):
-        data_np = batch_iterations(data_np, 100000, 5, True, config, plotter, thread_nr, 'starting set ' + str(stage), improveOnly=True)
+    if start_phase < 5:
+        data_np = batch_iterations(data_np, 25000, 40, True, config, plotter, thread_nr, 'starting improve only set ' + str(stage), improveOnly=True)
         sd = data_np.get_scheduler_data()
         sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
         convert_output(sd.dates, output_file_prefix + '_pretty' + str(stage) + '.xlsx', year)
         save_state(output_file_prefix, stage, 5)
+        stage += 1
+
+    for xyz in range(0, 1000):
+        data_np = batch_iterations(data_np, 100000, 5, True, config, plotter, thread_nr, 'starting improve only set ' + str(stage), improveOnly=True)
+        sd = data_np.get_scheduler_data()
+        sd.save_to(year, output_file_prefix + str(stage) + '.xlsx')
+        convert_output(sd.dates, output_file_prefix + '_pretty' + str(stage) + '.xlsx', year)
+        save_state(output_file_prefix, stage, 6)
         stage += 1
 
     sys.exit(0)
