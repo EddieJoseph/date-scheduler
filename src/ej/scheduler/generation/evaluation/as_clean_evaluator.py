@@ -18,6 +18,7 @@ class AsCleanEvaluator(Evaluator):
         as_dates = dates[dates[:, SamplingRows.AS.value] == 1][:, SamplingRows.DATE.value]
         if len(as_dates) < 2:
             return 1
+        as_dates = np.sort(as_dates)
         diff = self.get_diff_np(as_dates)
         tmp = 0.6 ** len(diff[diff < self.min_days])
         return tmp

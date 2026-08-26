@@ -7,7 +7,8 @@ from ..sampling_data_holder import SamplingDataHolder, SamplingRows
 def generate_score_np(dates_filtered):
     if len(dates_filtered) < 2:
         return 1
-    diffs = np.diff(dates_filtered, append=dates_filtered[0] + 365)
+    dates_sorted = np.sort(dates_filtered)
+    diffs = np.diff(dates_sorted, append=dates_sorted[0] + 365)
     result = 1 / (1 + np.sqrt(np.var(diffs) / 10000))
     return result
 

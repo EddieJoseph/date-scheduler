@@ -81,7 +81,7 @@ class SamplingDataHolder:
 
     def _convert_from_dataframe(self, data_frame):
         np_data = np.ones((len(data_frame), 16), dtype=np.int16) * -1
-        for index, row in data_frame.iterrows():
+        for index, (_, row) in enumerate(data_frame.iterrows()):
             np_data[index, SamplingRows.DATE.value] = row[RowNames.DATE.value]
             if not np.isnan(row[RowNames.MONTH.value]):
                 np_data[index, SamplingRows.MONTH.value] = row[RowNames.MONTH.value]

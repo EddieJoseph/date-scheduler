@@ -37,7 +37,7 @@ def print_timers():
 
 def generate_candidate(dates: np.ndarray, config: SchedulerConfig, limit_randomness=False) -> tuple[np.ndarray, set[int]]:
     candidate, changed_indices = config.sampler.sample(dates)
-    return sort_np_data_by_date(candidate), changed_indices
+    return candidate, changed_indices
 
 
 def print_evaluation(max, max_p, cand, cand_p, config: SchedulerConfig, accept, reject):

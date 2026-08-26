@@ -15,7 +15,10 @@ class AssiEvaluator(Evaluator):
     def evaluate(self, candidate):
         assi_dates = candidate[np.isin(candidate[:,SamplingRows.TYPE.value], self.assi_types)]
         assi_dates = assi_dates[assi_dates[:, SamplingRows.ORDER.value] != -1]
-        diffs = np.diff(assi_dates[:,SamplingRows.ORDER.value])
+        if len(assi_dates) < 2:
+            return 1.0
+        sorted_by_date = assi_dates[np.argsort(assi_dates[:, SamplingRows.DATE.value])]
+        diffs = np.diff(sorted_by_date[:, SamplingRows.ORDER.value])
         violations = len(diffs[diffs < 0])
         return 0.5 ** violations
 
